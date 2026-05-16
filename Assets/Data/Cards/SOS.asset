@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2965507222876552564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96450694004ac3847b5e5f088f960eb7, type: 3}
+  m_Name: EscapeChanceEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::EscapeChanceEffectSO
+  amount: 0.1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e42e2eee3eae0147904c240e8c190ac, type: 3}
+  m_Name: SOS
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: SOS
+  cardType: 4
+  costs:
+  - resource: 4
+    amount: 2
+  - resource: 5
+    amount: 2
+  conditions: []
+  effects:
+  - {fileID: -2965507222876552564}
+  onRefuseCopyToDeck: 0
