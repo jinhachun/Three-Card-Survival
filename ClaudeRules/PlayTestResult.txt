@@ -1,0 +1,7 @@
+# PlayTestResult — Three Card Survival
+
+플레이테스트 피드백 기록. 테스트 후 항목 추가.
+
+---
+
+(아직 플레이테스트 없음 — 프로젝트 시작)
