@@ -18,11 +18,15 @@ public class DeckManager : MonoBehaviour
         }
     }
 
+    // 마지막 GetThreeCards 호출 당시 이월 카드 수 (CardSelector가 참조)
+    public int LastCarriedOverCount { get; private set; }
+
     // carriedOver + 덱 상단 보충 → 최대 3장 반환
     // 덱 소진 후에도 carriedOver만으로 계속 진행
     public IReadOnlyList<CardData> GetThreeCards()
     {
         _currentThree.Clear();
+        LastCarriedOverCount = _state.carriedOver.Count;
         _currentThree.AddRange(_state.carriedOver);
         _state.carriedOver.Clear();
 
@@ -35,16 +39,22 @@ public class DeckManager : MonoBehaviour
         return _currentThree;
     }
 
-    // 선택된 카드 → usedCards, 나머지 → carriedOver
-    public CardData SelectCard(int index)
+    // 선택된 카드 count장 → usedCards, 나머지 → carriedOver
+    public CardData SelectCard(CardData selected, int count)
     {
-        var selected = _currentThree[index];
-        _state.usedCards.Add(selected);
+        int removed = 0;
+        for (int i = _currentThree.Count - 1; i >= 0 && removed < count; i--)
+        {
+            if (_currentThree[i].cardName == selected.cardName)
+            {
+                _state.usedCards.Add(_currentThree[i]);
+                _currentThree.RemoveAt(i);
+                removed++;
+            }
+        }
 
-        for (int i = 0; i < _currentThree.Count; i++)
-            if (i != index)
-                _state.carriedOver.Add(_currentThree[i]);
-
+        foreach (var c in _currentThree)
+            _state.carriedOver.Add(c);
         _currentThree.Clear();
         return selected;
     }

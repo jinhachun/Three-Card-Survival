@@ -13,22 +13,17 @@ public class DayEndUIController : MonoBehaviour
     void OnEnable()
     {
         dayEndRoutine.OnRequestRewardChoice  += ShowRewardPanel;
-        dayEndRoutine.OnRequestMergeChoice   += ShowMergePanel;
         dayEndRoutine.OnRequestEnhanceChoice += ShowEnhancePanel;
     }
 
     void OnDisable()
     {
         dayEndRoutine.OnRequestRewardChoice  -= ShowRewardPanel;
-        dayEndRoutine.OnRequestMergeChoice   -= ShowMergePanel;
         dayEndRoutine.OnRequestEnhanceChoice -= ShowEnhancePanel;
     }
 
     private void ShowRewardPanel(List<CardData> cards, System.Action<int> onSelected)
         => rewardPanel.Show("Reward — Pick 1", cards, 1, indices => onSelected(indices[0]));
-
-    private void ShowMergePanel(List<CardData> cards, System.Action<int, int> onSelected)
-        => mergePanel.Show("Merge — Pick 2", cards, 2, indices => onSelected(indices[0], indices[1]));
 
     private void ShowEnhancePanel(List<CardData> cards, System.Action<int> onSelected)
         => enhancePanel.Show("Enhance — Pick 1", cards, 1, indices => onSelected(indices[0]));

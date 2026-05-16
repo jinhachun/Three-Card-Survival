@@ -14,14 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Hunting
   cardType: 0
-  costs: []
+  costs:
+  - resource: 1
+    amount: 3
   conditions:
   - stat: 1
     minAmount: 2
   effects:
-  - {fileID: 8214730889620979807}
+  - {fileID: 3715114323778329939}
   onRefuseCopyToDeck: 0
---- !u!114 &8214730889620979807
+--- !u!114 &3715114323778329939
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -34,4 +36,4 @@ MonoBehaviour:
   m_Name: ResourceEffectSO
   m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
   resource: 2
-  amount: 4
+  amount: 6

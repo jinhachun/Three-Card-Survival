@@ -26,6 +26,9 @@ public class CardData : ScriptableObject
     [BoxGroup("기본"), EnumToggleButtons]
     public CardType cardType;
 
+    [BoxGroup("기본"), PreviewField(55)]
+    public Sprite cardSprite;
+
     [BoxGroup("선택 비용"), ListDrawerSettings(ShowIndexLabels = false)]
     public List<CardCost> costs = new();
 

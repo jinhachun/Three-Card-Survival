@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public class GameState
 {
     // 자원
+    public int maxHp     = 10;
     public int hp        = 10;
     public int food      = 5;
     public int water     = 5;

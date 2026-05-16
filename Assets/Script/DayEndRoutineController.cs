@@ -6,13 +6,11 @@ using UnityEngine;
 
 public class DayEndRoutineController : MonoBehaviour
 {
-    [BoxGroup("보상 풀"), Required] [SerializeField] private CardData[] rewardPool; // 6장
-    [BoxGroup("시련 풀"), Required] [SerializeField] private CardData[] trialPool;  // 3장
-    [BoxGroup("특수 카드"), Required] [SerializeField] private CardData sosCard;
+    [Required] [SerializeField] private CardRegistry cardRegistry;
 
     // UI가 구독해서 선택 UI를 띄우고, 완료 시 콜백을 호출
     public event Action<List<CardData>, Action<int>>      OnRequestRewardChoice;
-    public event Action<List<CardData>, Action<int, int>> OnRequestMergeChoice;
+    // OnRequestMergeChoice: 레시피 합성 시스템 구현 시 활성화
     public event Action<List<CardData>, Action<int>>      OnRequestEnhanceChoice;
 
     public void Run(GameState state, DeckManager deckManager, Action onComplete)
@@ -22,6 +20,12 @@ public class DayEndRoutineController : MonoBehaviour
 
     private IEnumerator RunSequence(GameState state, DeckManager deckManager, Action onComplete)
     {
+        // 0. 이번 날 사용한 카드 전부 덱에 반환
+        state.deck.AddRange(state.usedCards);
+        state.usedCards.Clear();
+        state.deck.AddRange(state.carriedOver);
+        state.carriedOver.Clear();
+
         // 1. 카드 보상: 보상 풀에서 3장 제시 → 1장 선택 → 덱에 추가
         var candidates = GetShuffledCandidates();
         CardData chosen = null;
@@ -36,23 +40,7 @@ public class DayEndRoutineController : MonoBehaviour
         }
         deckManager.AddCardToDeck(CardUtils.Clone(chosen));
 
-        // 2. 카드 합성: 덱에서 2장 선택 → 효과 합친 1장으로 교체
-        if (state.deck.Count >= 2)
-        {
-            int mergeA = -1, mergeB = -1;
-            if (OnRequestMergeChoice != null)
-            {
-                OnRequestMergeChoice.Invoke(state.deck, (a, b) => { mergeA = a; mergeB = b; });
-                yield return new WaitUntil(() => mergeA >= 0 && mergeB >= 0);
-            }
-            else
-            {
-                mergeA = 0; mergeB = 1;
-            }
-            MergeCards(state, deckManager, mergeA, mergeB);
-        }
-
-        // 3. 카드 강화: 덱에서 1장 선택 → 모든 효과량 +1
+        // 2. 카드 강화: 덱에서 1장 선택 → 모든 효과량 +1
         if (state.deck.Count >= 1)
         {
             int enhanceIdx = -1;
@@ -69,13 +57,15 @@ public class DayEndRoutineController : MonoBehaviour
         }
 
         // 4. 랜덤 시련 카드 1장 덱에 추가
-        deckManager.AddCardToDeck(CardUtils.Clone(trialPool[UnityEngine.Random.Range(0, trialPool.Length)]));
+        var pool = cardRegistry.trialPool;
+        deckManager.AddCardToDeck(CardUtils.Clone(pool[UnityEngine.Random.Range(0, pool.Length)]));
 
         // 5. 마일스톤: 5일차에 SOS 카드 추가
         if (state.day == 5)
-            deckManager.AddCardToDeck(CardUtils.Clone(sosCard));
+            deckManager.AddCardToDeck(CardUtils.Clone(cardRegistry.sosCard));
 
-        // 6. 날짜 증가 후 덱 셔플
+        // 6. HP 전량 회복 후 날짜 증가 및 덱 셔플
+        state.hp = state.maxHp;
         state.day += 1;
         deckManager.Shuffle();
 
@@ -84,7 +74,7 @@ public class DayEndRoutineController : MonoBehaviour
 
     private List<CardData> GetShuffledCandidates()
     {
-        var pool = new List<CardData>(rewardPool);
+        var pool = new List<CardData>(cardRegistry.rewardPool);
         for (int i = pool.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);

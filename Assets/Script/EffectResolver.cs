@@ -8,13 +8,14 @@ public class EffectResolver : MonoBehaviour
 
     // 모든 카드 타입에 동일하게 적용: 비용 지불 → 효과 실행
     // DayEnd 카드는 GameManager가 직접 처리하므로 여기로 오지 않음
-    public void ApplyCard(CardData card, GameState state)
+    public void ApplyCard(CardData card, int count, GameState state)
     {
         foreach (var cost in card.costs)
-            state.AddResource(cost.resource, -cost.amount - state.costPenalty);
+            state.AddResource(cost.resource, -(cost.amount * count) - state.costPenalty);
 
-        foreach (var effect in card.effects)
-            effect.Apply(state);
+        for (int i = 0; i < count; i++)
+            foreach (var effect in card.effects)
+                effect.Apply(state);
     }
 
     // 시련 카드 거부 시: 덱에 복사본 추가

@@ -1,16 +1,16 @@
 Name,CardType,Costs,Conditions,Effects,OnRefuseCopyToDeck
-Forage,Resource,,,"Resource:Food:2",false
-Collect Water,Resource,,,"Resource:Water:2",false
-Quarry,Resource,,,"Resource:Stone:2",false
-Logging,Resource,,,"Resource:Wood:2",false
+Forage,Resource,Water:2,,"Resource:Food:2",false
+Collect Water,Resource,Food:2,,"Resource:Water:2",false
+Mine,Resource,HP:2,,"Resource:Stone:3",false
+Log,Resource,HP:2,,"Resource:Wood:3",false
 End of Day,DayEnd,,,,false
 Hunger,Trial,Food:3,,,"",true
 Thirst,Trial,Water:3,,,"",true
 Injury,Trial,HP:3,,,"",true
 SOS,SOS,Stone:2|Wood:2,,"EscapeChance:0.1",false
-Hunting,Resource,,Strength:2,"Resource:Food:4",false
-Fishing,Resource,,,"Resource:Food:3|Resource:Water:1",false
-Rain Collect,Resource,,,"Resource:Water:4",false
-Str Training,Stat,,,"Stat:Strength:1",false
-Agi Training,Stat,,,"Stat:Agility:1",false
-Observe,Stat,,,"Stat:Intelligence:1",false
+Craft Food,Resource,Stone:2,,"Resource:Food:5",false
+Dig Well,Resource,Wood:2,,"Resource:Water:5",false
+Hunting,Resource,HP:3,Strength:2,"Resource:Food:6",false
+Rest,Resource,Food:2|Water:1,,"Resource:HP:5",false
+Str Training,Stat,Food:2,,"Stat:Strength:1",false
+Agi Training,Stat,Water:2,,"Stat:Agility:1",false

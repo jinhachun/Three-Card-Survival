@@ -10,10 +10,11 @@ public class GameManager : MonoBehaviour
     [BoxGroup("시스템"), Required] [SerializeField] private DayEndRoutineController dayEndRoutine;
     [BoxGroup("시스템"), Required] [SerializeField] private EscapeSystem escapeSystem;
 
-    [BoxGroup("스타터 덱")]
-    [SerializeField] private StarterCardEntry[] starterDeck;
+    [BoxGroup("카드")]
+    [Required] [SerializeField] private CardRegistry cardRegistry;
 
     [BoxGroup("UI"), Required] [SerializeField] private HUDController hud;
+    [BoxGroup("UI"), Required] [SerializeField] private DeckPileView deckPileView;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject dayEndChoicePanel;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameOverPanel;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameClearPanel;
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
         deckManager.Init(_state);
         effectResolver.Init(deckManager);
 
-        foreach (var entry in starterDeck)
+        foreach (var entry in cardRegistry.starterDeck)
             for (int j = 0; j < entry.count; j++)
                 _state.deck.Add(CardUtils.Clone(entry.card));
 
@@ -54,14 +55,16 @@ public class GameManager : MonoBehaviour
     {
         _phase = GamePhase.PlayerTurn;
         hud.Refresh();
-        cardSelector.ShowCards(deckManager.GetThreeCards(), _state);
+        var cards = deckManager.GetThreeCards();
+        deckPileView?.UpdateCount(_state.deck.Count);
+        cardSelector.ShowCards(cards, _state, deckManager.LastCarriedOverCount);
     }
 
-    void OnCardSelected(int index)
+    void OnCardSelected(CardData card, int count)
     {
         if (_phase != GamePhase.PlayerTurn) return;
 
-        var card = deckManager.SelectCard(index);
+        deckManager.SelectCard(card, count);
 
         // 이월된 시련 카드 거부 패널티
         foreach (var c in _state.carriedOver)
@@ -75,7 +78,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        effectResolver.ApplyCard(card, _state);
+        effectResolver.ApplyCard(card, count, _state);
 
         if (_state.hp <= 0)
             EnterGameOver();
@@ -89,6 +92,12 @@ public class GameManager : MonoBehaviour
     public void OnChoiceEndDay()
     {
         dayEndChoicePanel.SetActive(false);
+
+        // End of Day 카드를 덱에 반환 (다음 날에도 등장해야 함)
+        var dayEndCard = _state.usedCards[^1];
+        _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
+        deckManager.AddCardToDeck(dayEndCard);
+
         _phase = GamePhase.DayEndRoutine;
         dayEndRoutine.Run(_state, deckManager, EnterPlayerTurn);
     }
@@ -135,10 +144,3 @@ public class GameManager : MonoBehaviour
 }
 
 public enum GamePhase { PlayerTurn, DayEndChoice, DayEndRoutine, GameOver, GameClear }
-
-[System.Serializable]
-public struct StarterCardEntry
-{
-    public CardData card;
-    public int count;
-}

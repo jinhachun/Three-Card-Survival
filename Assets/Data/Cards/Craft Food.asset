@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e42e2eee3eae0147904c240e8c190ac, type: 3}
-  m_Name: Logging
+  m_Name: Craft Food
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: Logging
+  cardName: Craft Food
   cardType: 0
-  costs: []
+  costs:
+  - resource: 4
+    amount: 2
   conditions: []
   effects:
-  - {fileID: 3637067302763245936}
+  - {fileID: 7304422501365918079}
   onRefuseCopyToDeck: 0
---- !u!114 &3637067302763245936
+--- !u!114 &7304422501365918079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -31,5 +33,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cd77fd9a704a3c48be9c549ba993a55, type: 3}
   m_Name: ResourceEffectSO
   m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
-  resource: 5
-  amount: 2
+  resource: 2
+  amount: 5
