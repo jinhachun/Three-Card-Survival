@@ -9,9 +9,7 @@ public class DayEndRoutineController : MonoBehaviour
     [Required] [SerializeField] private CardRegistry cardRegistry;
 
     // UI가 구독해서 선택 UI를 띄우고, 완료 시 콜백을 호출
-    public event Action<List<CardData>, Action<int>>      OnRequestRewardChoice;
-    // OnRequestMergeChoice: 레시피 합성 시스템 구현 시 활성화
-    public event Action<List<CardData>, Action<int>>      OnRequestEnhanceChoice;
+    public event Action<List<CardData>, Action<int>> OnRequestRewardChoice;
 
     public void Run(GameState state, DeckManager deckManager, Action onComplete)
     {
@@ -27,7 +25,7 @@ public class DayEndRoutineController : MonoBehaviour
         state.carriedOver.Clear();
 
         // 1. 카드 보상: 보상 풀에서 3장 제시 → 1장 선택 → 덱에 추가
-        var candidates = GetShuffledCandidates();
+        var candidates = GetShuffledCandidates(state.day, state);
         CardData chosen = null;
         if (OnRequestRewardChoice != null)
         {
@@ -40,23 +38,7 @@ public class DayEndRoutineController : MonoBehaviour
         }
         deckManager.AddCardToDeck(CardUtils.Clone(chosen));
 
-        // 2. 카드 강화: 덱에서 1장 선택 → 모든 효과량 +1
-        if (state.deck.Count >= 1)
-        {
-            int enhanceIdx = -1;
-            if (OnRequestEnhanceChoice != null)
-            {
-                OnRequestEnhanceChoice.Invoke(state.deck, idx => enhanceIdx = idx);
-                yield return new WaitUntil(() => enhanceIdx >= 0);
-            }
-            else
-            {
-                enhanceIdx = 0;
-            }
-            EnhanceCard(state.deck[enhanceIdx]);
-        }
-
-        // 4. 랜덤 시련 카드 1장 덱에 추가
+        // 2. 랜덤 시련 카드 1장 덱에 추가
         var pool = cardRegistry.trialPool;
         deckManager.AddCardToDeck(CardUtils.Clone(pool[UnityEngine.Random.Range(0, pool.Length)]));
 
@@ -72,15 +54,32 @@ public class DayEndRoutineController : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    private List<CardData> GetShuffledCandidates()
+    private List<CardData> GetShuffledCandidates(int currentDay, GameState state)
     {
-        var pool = new List<CardData>(cardRegistry.rewardPool);
+        var pool = new List<CardData>();
+        foreach (var card in cardRegistry.rewardPool)
+        {
+            if (card == null) continue;
+            if (card.minDay > currentDay) continue;
+            if (!string.IsNullOrEmpty(card.requiredBuilding) && !state.IsBuildingComplete(card.requiredBuilding)) continue;
+            if (card.cardType == CardType.Building && IsCompletedBuildingCard(card, state)) continue;
+            pool.Add(card);
+        }
+
         for (int i = pool.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
             (pool[i], pool[j]) = (pool[j], pool[i]);
         }
         return pool.GetRange(0, Mathf.Min(3, pool.Count));
+    }
+
+    private static bool IsCompletedBuildingCard(CardData card, GameState state)
+    {
+        foreach (var effect in card.effects)
+            if (effect is BuildingProgressEffectSO bpe && state.IsBuildingComplete(bpe.buildingData.buildingName))
+                return true;
+        return false;
     }
 
     private void MergeCards(GameState state, DeckManager deckManager, int idxA, int idxB)
@@ -103,13 +102,4 @@ public class DayEndRoutineController : MonoBehaviour
         deckManager.AddCardToDeck(merged);
     }
 
-    private void EnhanceCard(CardData card)
-    {
-        foreach (var effect in card.effects)
-        {
-            if (effect is ResourceEffectSO re)       re.amount    += 1;
-            else if (effect is StatEffectSO se)      se.amount    += 1;
-            else if (effect is EscapeChanceEffectSO ec) ec.amount += 0.1f;
-        }
-    }
 }

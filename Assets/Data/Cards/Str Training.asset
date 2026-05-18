@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Str Training
   cardType: 1
+  minDay: 1
+  requiredCard: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 2
     amount: 2
   conditions: []
   effects:
-  - {fileID: 8083044856454707650}
+  - {fileID: 5108038496594590105}
   onRefuseCopyToDeck: 0
---- !u!114 &8083044856454707650
+--- !u!114 &5108038496594590105
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

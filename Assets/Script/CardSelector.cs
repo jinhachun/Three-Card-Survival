@@ -39,7 +39,7 @@ public class CardSelector : MonoBehaviour
                     if (_animating) return;
                     _animating = true;
                     OnCardSelected?.Invoke(capturedCard, capturedCount);
-                });
+                }, state);
             }
             else
             {
@@ -83,26 +83,6 @@ public class CardSelector : MonoBehaviour
         return true;
     }
 
-    // 덱 파일 위치를 이 컨테이너의 로컬 좌표로 변환
-    // deckPileRect 미연결 시 컨테이너 왼쪽 바깥 위치로 폴백
-    private Vector2 ComputeDeckLocalPos(RectTransform container)
-    {
-        if (container == null || deckPileRect == null)
-            return container != null ? new Vector2(-container.rect.width * 0.7f, 0f) : Vector2.zero;
-
-        var canvas = deckPileRect.GetComponentInParent<Canvas>();
-        if (canvas == null)
-            return new Vector2(-container.rect.width * 0.7f, 0f);
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            container,
-            RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, deckPileRect.position),
-            canvas.worldCamera,
-            out Vector2 localPos);
-
-        return localPos;
-    }
-
     private static List<(CardData card, int count, bool isNew)> GroupByName(
         IReadOnlyList<CardData> cards, int carriedOverCount)
     {
@@ -127,4 +107,25 @@ public class CardSelector : MonoBehaviour
         }
         return result;
     }
+
+    // 덱 파일 위치를 이 컨테이너의 로컬 좌표로 변환
+    // deckPileRect 미연결 시 컨테이너 왼쪽 바깥 위치로 폴백
+    private Vector2 ComputeDeckLocalPos(RectTransform container)
+    {
+        if (container == null || deckPileRect == null)
+            return container != null ? new Vector2(-container.rect.width * 0.7f, 0f) : Vector2.zero;
+
+        var canvas = deckPileRect.GetComponentInParent<Canvas>();
+        if (canvas == null)
+            return new Vector2(-container.rect.width * 0.7f, 0f);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            container,
+            RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, deckPileRect.position),
+            canvas.worldCamera,
+            out Vector2 localPos);
+
+        return localPos;
+    }
+
 }

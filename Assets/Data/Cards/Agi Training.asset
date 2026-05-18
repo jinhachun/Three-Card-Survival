@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8245882380969180213
+--- !u!114 &-7599995807976781350
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28,10 +28,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Agi Training
   cardType: 1
+  minDay: 1
+  requiredCard: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 3
     amount: 2
   conditions: []
   effects:
-  - {fileID: -8245882380969180213}
+  - {fileID: -7599995807976781350}
   onRefuseCopyToDeck: 0

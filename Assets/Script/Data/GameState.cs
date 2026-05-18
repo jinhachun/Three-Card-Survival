@@ -20,12 +20,27 @@ public class GameState
     public List<CardData> usedCards   = new();
     public List<CardData> carriedOver = new();
 
+    // 건물
+    public Dictionary<string, int> buildingProgress   = new();
+    public HashSet<string>         completedBuildings  = new();
+
+    public int  GetBuildingProgress(string name) => buildingProgress.TryGetValue(name, out int v) ? v : 0;
+    public bool IsBuildingComplete(string name)  => completedBuildings.Contains(name);
+
     // 진행
     public int   day          = 1;
     public float escapeChance = 0f;
     public int   costPenalty  = 0;  // 탈출 실패 누적 패널티
     public bool  isGameOver   = false;
     public bool  isClear      = false;
+
+    public bool HasCardInCollection(string cardName)
+    {
+        foreach (var c in deck)        if (c.cardName == cardName) return true;
+        foreach (var c in usedCards)   if (c.cardName == cardName) return true;
+        foreach (var c in carriedOver) if (c.cardName == cardName) return true;
+        return false;
+    }
 
     public int GetResource(ResourceType type) => type switch
     {

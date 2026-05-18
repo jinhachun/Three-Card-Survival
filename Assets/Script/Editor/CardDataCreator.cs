@@ -18,9 +18,11 @@ public static class CardDataCreator
         Create("End of Day",    CardType.DayEnd);
 
         // Trial cards
-        Create("Hunger", CardType.Trial, costs: new() { new() { resource = ResourceType.Food,  amount = 3 } }, onRefuseCopyToDeck: true);
-        Create("Thirst", CardType.Trial, costs: new() { new() { resource = ResourceType.Water, amount = 3 } }, onRefuseCopyToDeck: true);
-        Create("Injury", CardType.Trial, costs: new() { new() { resource = ResourceType.HP,    amount = 3 } }, onRefuseCopyToDeck: true);
+        Create("Hunger",     CardType.Trial, costs: new() { new() { resource = ResourceType.Food,  amount = 3 } }, onRefuseCopyToDeck: true);
+        Create("Thirst",     CardType.Trial, costs: new() { new() { resource = ResourceType.Water, amount = 3 } }, onRefuseCopyToDeck: true);
+        Create("Injury",     CardType.Trial, costs: new() { new() { resource = ResourceType.HP,    amount = 3 } }, onRefuseCopyToDeck: true);
+        Create("Exhaustion", CardType.Trial, costs: new() { new() { resource = ResourceType.HP,    amount = 4 } }, onRefuseCopyToDeck: true);
+        Create("Drought",    CardType.Trial, costs: new() { new() { resource = ResourceType.Water, amount = 4 } }, onRefuseCopyToDeck: true);
 
         // SOS: Stone -2, Wood -2 → escapeChance +0.1
         Create("SOS", CardType.SOS,
@@ -30,23 +32,41 @@ public static class CardDataCreator
             },
             effects: new() { Escape(0.1f) });
 
-        // Reward cards
-        Create("Craft Food",  CardType.Resource, costs: new() { new() { resource = ResourceType.Stone, amount = 2 } }, effects: new() { Res(ResourceType.Food,  5) });
-        Create("Dig Well",    CardType.Resource, costs: new() { new() { resource = ResourceType.Wood,  amount = 2 } }, effects: new() { Res(ResourceType.Water, 5) });
-        Create("Hunting",     CardType.Resource,
+        // Reward cards — 기본
+        Create("Craft Food",   CardType.Resource, costs: new() { new() { resource = ResourceType.Stone, amount = 2 } }, effects: new() { Res(ResourceType.Food,  5) });
+        Create("Dig Well",     CardType.Resource, costs: new() { new() { resource = ResourceType.Wood,  amount = 2 } }, effects: new() { Res(ResourceType.Water, 5) });
+        Create("Hunting",      CardType.Resource,
             costs: new() { new() { resource = ResourceType.HP, amount = 3 } },
             conditions: new() { new() { stat = StatType.Strength, minAmount = 2 } },
             effects: new() { Res(ResourceType.Food, 6) });
-        Create("Rest",        CardType.Resource,
+        Create("Rest",         CardType.Resource,
             costs: new() { new() { resource = ResourceType.Food, amount = 2 }, new() { resource = ResourceType.Water, amount = 1 } },
             effects: new() { Res(ResourceType.HP, 5) });
-        Create("Str Training", CardType.Stat, costs: new() { new() { resource = ResourceType.Food,  amount = 2 } }, effects: new() { Stat(StatType.Strength, 1) });
-        Create("Agi Training", CardType.Stat, costs: new() { new() { resource = ResourceType.Water, amount = 2 } }, effects: new() { Stat(StatType.Agility,  1) });
+        // Reward cards — 추가
+        // AGI 조건 카드
+        Create("Fishing", CardType.Resource,
+            costs: new() { new() { resource = ResourceType.HP, amount = 2 } },
+            conditions: new() { new() { stat = StatType.Agility, minAmount = 2 } },
+            effects: new() { Res(ResourceType.Food, 3), Res(ResourceType.Water, 2) });
+        Create("Snare", CardType.Resource,
+            costs: new() { new() { resource = ResourceType.Wood, amount = 1 } },
+            conditions: new() { new() { stat = StatType.Agility, minAmount = 2 } },
+            effects: new() { Res(ResourceType.Food, 3) });
+
+        // INT 조건 카드
+        Create("Herbalism", CardType.Resource,
+            costs: new() { new() { resource = ResourceType.Water, amount = 2 } },
+            conditions: new() { new() { stat = StatType.Intelligence, minAmount = 2 } },
+            effects: new() { Res(ResourceType.HP, 5) });
+        Create("Efficient Craft", CardType.Resource,
+            costs: new() { new() { resource = ResourceType.HP, amount = 2 } },
+            conditions: new() { new() { stat = StatType.Intelligence, minAmount = 2 } },
+            effects: new() { Res(ResourceType.Stone, 4) });
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         PopulateRegistry();
-        Debug.Log($"[CardDataCreator] 카드 에셋 15장 생성 + 레지스트리 자동 등록 완료 → {SavePath}");
+        Debug.Log($"[CardDataCreator] 카드 에셋 생성 + 레지스트리 자동 등록 완료 → {SavePath}");
     }
 
     // --- 레지스트리 자동 등록 ---
@@ -73,10 +93,16 @@ public static class CardDataCreator
         registry.rewardPool = new CardData[]
         {
             Load("Craft Food"), Load("Dig Well"), Load("Hunting"),
-            Load("Rest"), Load("Str Training"), Load("Agi Training"),
+            Load("Rest"),
+            Load("Fishing"),    Load("Snare"),
+            Load("Herbalism"),  Load("Efficient Craft"),
         };
 
-        registry.trialPool = new CardData[] { Load("Hunger"), Load("Thirst"), Load("Injury") };
+        registry.trialPool = new CardData[]
+        {
+            Load("Hunger"), Load("Thirst"), Load("Injury"),
+            Load("Exhaustion"), Load("Drought"),
+        };
         registry.sosCard   = Load("SOS");
 
         EditorUtility.SetDirty(registry);

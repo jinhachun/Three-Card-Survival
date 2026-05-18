@@ -1,4 +1,6 @@
+using DG.Tweening;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,22 +20,31 @@ public class GameManager : MonoBehaviour
     [BoxGroup("UI"), Required] [SerializeField] private GameObject dayEndChoicePanel;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameOverPanel;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameClearPanel;
+    // 씬에 배치 후 연결 (미연결 시 무시)
+    [BoxGroup("UI")] [SerializeField] private TMP_Text              dayAnnouncementText;
+    [BoxGroup("UI")] [SerializeField] private BuildingCompletePopup buildingCompletePopup;
+    [BoxGroup("UI")] [SerializeField] private PassiveNotifier       passiveNotifier;
 
     private GameState _state;
     private GamePhase _phase;
+    private bool      _pendingDayAnnouncement;
 
     void Start() => InitGame();
 
     void OnEnable()
     {
-        cardSelector.OnCardSelected        += OnCardSelected;
+        cardSelector.OnCardSelected         += OnCardSelected;
         cardSelector.OnAllCardsUnselectable += OnAllCardsUnselectable;
+        if (buildingCompletePopup != null) effectResolver.OnBuildingCompleted += buildingCompletePopup.Show;
+        if (passiveNotifier       != null) effectResolver.OnPassiveApplied    += passiveNotifier.Notify;
     }
 
     void OnDisable()
     {
-        cardSelector.OnCardSelected        -= OnCardSelected;
+        cardSelector.OnCardSelected         -= OnCardSelected;
         cardSelector.OnAllCardsUnselectable -= OnAllCardsUnselectable;
+        if (buildingCompletePopup != null) effectResolver.OnBuildingCompleted -= buildingCompletePopup.Show;
+        if (passiveNotifier       != null) effectResolver.OnPassiveApplied    -= passiveNotifier.Notify;
     }
 
     void InitGame()
@@ -55,6 +66,13 @@ public class GameManager : MonoBehaviour
     {
         _phase = GamePhase.PlayerTurn;
         hud.Refresh();
+
+        if (_pendingDayAnnouncement)
+        {
+            _pendingDayAnnouncement = false;
+            PlayDayAnnouncement();
+        }
+
         var cards = deckManager.GetThreeCards();
         deckPileView?.UpdateCount(_state.deck.Count);
         cardSelector.ShowCards(cards, _state, deckManager.LastCarriedOverCount);
@@ -74,7 +92,7 @@ public class GameManager : MonoBehaviour
         if (card.cardType == CardType.DayEnd)
         {
             _phase = GamePhase.DayEndChoice;
-            dayEndChoicePanel.SetActive(true);
+            OpenPanel(dayEndChoicePanel);
             return;
         }
 
@@ -91,21 +109,20 @@ public class GameManager : MonoBehaviour
     // DayEnd 삼중 선택지 — 인스펙터에서 버튼 OnClick에 연결
     public void OnChoiceEndDay()
     {
-        dayEndChoicePanel.SetActive(false);
+        ClosePanel(dayEndChoicePanel);
 
-        // End of Day 카드를 덱에 반환 (다음 날에도 등장해야 함)
         var dayEndCard = _state.usedCards[^1];
         _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
         deckManager.AddCardToDeck(dayEndCard);
 
         _phase = GamePhase.DayEndRoutine;
+        _pendingDayAnnouncement = true;
         dayEndRoutine.Run(_state, deckManager, EnterPlayerTurn);
     }
 
     public void OnChoiceContinue()
     {
-        dayEndChoicePanel.SetActive(false);
-        // usedCards 마지막 카드가 방금 선택한 하루의 끝 카드
+        ClosePanel(dayEndChoicePanel);
         var dayEndCard = _state.usedCards[^1];
         _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
         deckManager.AddCardToDeck(dayEndCard);
@@ -115,13 +132,20 @@ public class GameManager : MonoBehaviour
 
     public void OnChoiceTryEscape()
     {
-        dayEndChoicePanel.SetActive(false);
+        ClosePanel(dayEndChoicePanel);
         if (escapeSystem.TryEscape(_state))
+        {
             EnterGameClear();
+        }
         else
         {
             effectResolver.ApplyEscapeFailurePenalty(_state);
-            EnterPlayerTurn();
+            var dayEndCard = _state.usedCards[^1];
+            _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
+            deckManager.AddCardToDeck(dayEndCard);
+            _phase = GamePhase.DayEndRoutine;
+            _pendingDayAnnouncement = true;
+            dayEndRoutine.Run(_state, deckManager, EnterPlayerTurn);
         }
     }
 
@@ -129,18 +153,57 @@ public class GameManager : MonoBehaviour
     {
         _phase = GamePhase.GameOver;
         hud.Refresh();
-        gameOverPanel.SetActive(true);
+        OpenPanel(gameOverPanel);
     }
 
     void EnterGameClear()
     {
         _phase = GamePhase.GameClear;
         hud.Refresh();
-        gameClearPanel.SetActive(true);
+        OpenPanel(gameClearPanel);
     }
 
     // GameOver / GameClear 패널의 재시작 버튼 OnClick에 연결
     public void RestartGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    // ── 패널 애니메이션 헬퍼 ─────────────────────────────────────────
+    // PanelAnimator 컴포넌트가 있으면 애니메이션, 없으면 즉시 SetActive
+
+    private static void OpenPanel(GameObject panel)
+    {
+        var anim = panel.GetComponent<PanelAnimator>();
+        if (anim != null) anim.Open();
+        else              panel.SetActive(true);
+    }
+
+    private static void ClosePanel(GameObject panel)
+    {
+        var anim = panel.GetComponent<PanelAnimator>();
+        if (anim != null) anim.Close();
+        else              panel.SetActive(false);
+    }
+
+    // ── Day 알림 ────────────────────────────────────────────────────
+
+    private void PlayDayAnnouncement()
+    {
+        if (dayAnnouncementText == null) return;
+
+        dayAnnouncementText.text = $"Day {_state.day}";
+        var go = dayAnnouncementText.gameObject;
+        go.SetActive(true);
+
+        var cg = go.GetComponent<CanvasGroup>();
+        if (cg == null) cg = go.AddComponent<CanvasGroup>();
+
+        DOTween.Kill(cg);
+        cg.alpha = 0f;
+        DOTween.Sequence()
+            .Append(cg.DOFade(1f, 0.35f).SetEase(Ease.OutCubic))
+            .AppendInterval(0.75f)
+            .Append(cg.DOFade(0f, 0.45f).SetEase(Ease.InCubic))
+            .OnComplete(() => go.SetActive(false));
+    }
 }
 
 public enum GamePhase { PlayerTurn, DayEndChoice, DayEndRoutine, GameOver, GameClear }

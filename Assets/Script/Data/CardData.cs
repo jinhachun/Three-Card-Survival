@@ -26,6 +26,13 @@ public class CardData : ScriptableObject
     [BoxGroup("기본"), EnumToggleButtons]
     public CardType cardType;
 
+    [BoxGroup("기본")]
+    public int minDay = 1;
+
+    // 비어 있으면 조건 없음. 해당 buildingName이 완성되어야 보상 풀에 등장
+    [BoxGroup("기본")]
+    public string requiredBuilding = "";
+
     [BoxGroup("기본"), PreviewField(55)]
     public Sprite cardSprite;
 

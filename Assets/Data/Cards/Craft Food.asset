@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Craft Food
   cardType: 0
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 4
     amount: 2
   conditions: []
   effects:
-  - {fileID: 7304422501365918079}
+  - {fileID: 3585431219349105557}
   onRefuseCopyToDeck: 0
---- !u!114 &7304422501365918079
+--- !u!114 &3585431219349105557
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

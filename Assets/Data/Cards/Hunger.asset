@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Hunger
   cardType: 2
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 2
-    amount: 3
+    amount: 2
   conditions: []
   effects: []
   onRefuseCopyToDeck: 1

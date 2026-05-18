@@ -1,0 +1,7 @@
+Name,MinDay,ProgressPerUse,BuildCosts,CompletionEffect,PassiveEffect,UnlocksCards
+Well,2,25,Wood:2,,Resource:Water:1,
+Campfire,2,25,Stone:2,,Resource:Food:1,
+Infirmary,2,25,Wood:2|Stone:2,,Resource:HP:1,
+Gym,3,50,,Stat:Strength:1,,Hunting
+Training Ground,3,50,,Stat:Agility:1,,Fishing|Snare
+Library,3,50,,Stat:Intelligence:1,,Herbalism|Efficient Craft

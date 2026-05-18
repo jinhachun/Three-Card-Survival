@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: End of Day
   cardType: 3
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs: []
   conditions: []
   effects: []

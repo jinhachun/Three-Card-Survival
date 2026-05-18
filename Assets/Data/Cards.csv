@@ -1,16 +1,18 @@
-Name,CardType,Costs,Conditions,Effects,OnRefuseCopyToDeck
-Forage,Resource,Water:2,,"Resource:Food:2",false
-Collect Water,Resource,Food:2,,"Resource:Water:2",false
-Mine,Resource,HP:2,,"Resource:Stone:3",false
-Log,Resource,HP:2,,"Resource:Wood:3",false
-End of Day,DayEnd,,,,false
-Hunger,Trial,Food:3,,,"",true
-Thirst,Trial,Water:3,,,"",true
-Injury,Trial,HP:3,,,"",true
-SOS,SOS,Stone:2|Wood:2,,"EscapeChance:0.1",false
-Craft Food,Resource,Stone:2,,"Resource:Food:5",false
-Dig Well,Resource,Wood:2,,"Resource:Water:5",false
-Hunting,Resource,HP:3,Strength:2,"Resource:Food:6",false
-Rest,Resource,Food:2|Water:1,,"Resource:HP:5",false
-Str Training,Stat,Food:2,,"Stat:Strength:1",false
-Agi Training,Stat,Water:2,,"Stat:Agility:1",false
+Name,CardType,MinDay,Costs,Conditions,Effects,OnRefuseCopyToDeck,RequiredBuilding
+Forage,Resource,1,Water:2,,Resource:Food:2,false,
+Collect Water,Resource,1,Food:2,,Resource:Water:2,false,
+Mine,Resource,1,HP:2,,Resource:Stone:3,false,
+Log,Resource,1,HP:2,,Resource:Wood:3,false,
+End of Day,DayEnd,1,,,,false,
+Hunger,Trial,1,Food:2,,,true,
+Thirst,Trial,1,Water:2,,,true,
+Injury,Trial,1,HP:2,,,true,
+SOS,SOS,1,Stone:2|Wood:2,,EscapeChance:0.1,false,
+Craft Food,Resource,1,Stone:2,,Resource:Food:5,false,
+Dig Well,Resource,1,Wood:2,,Resource:Water:5,false,
+Hunting,Resource,2,HP:3,Strength:2,Resource:Food:6,false,Gym
+Rest,Resource,1,Food:2|Water:1,,Resource:HP:5,false,
+Fishing,Resource,2,HP:2,Agility:2,Resource:Food:3|Resource:Water:2,false,Training Ground
+Snare,Resource,2,Wood:1,Agility:2,Resource:Food:3,false,Training Ground
+Herbalism,Resource,3,Water:2,Intelligence:2,Resource:HP:5,false,Library
+Efficient Craft,Resource,3,HP:2,Intelligence:2,Resource:Stone:4,false,Library

@@ -21,8 +21,8 @@ public class DeckManager : MonoBehaviour
     // 마지막 GetThreeCards 호출 당시 이월 카드 수 (CardSelector가 참조)
     public int LastCarriedOverCount { get; private set; }
 
-    // carriedOver + 덱 상단 보충 → 최대 3장 반환
-    // 덱 소진 후에도 carriedOver만으로 계속 진행
+    // carriedOver + 덱 상단 보충 → 항상 unique 카드 이름 3종 확보
+    // 중복 카드(x2 등)가 생기면 덱에서 추가 보충, 덱 소진 시 가능한 만큼만
     public IReadOnlyList<CardData> GetThreeCards()
     {
         _currentThree.Clear();
@@ -30,13 +30,20 @@ public class DeckManager : MonoBehaviour
         _currentThree.AddRange(_state.carriedOver);
         _state.carriedOver.Clear();
 
-        while (_currentThree.Count < 3 && _state.deck.Count > 0)
+        while (UniqueNameCount(_currentThree) < 3 && _state.deck.Count > 0)
         {
             _currentThree.Add(_state.deck[0]);
             _state.deck.RemoveAt(0);
         }
 
         return _currentThree;
+    }
+
+    private static int UniqueNameCount(List<CardData> cards)
+    {
+        var seen = new System.Collections.Generic.HashSet<string>();
+        foreach (var c in cards) seen.Add(c.cardName);
+        return seen.Count;
     }
 
     // 선택된 카드 count장 → usedCards, 나머지 → carriedOver
@@ -59,7 +66,13 @@ public class DeckManager : MonoBehaviour
         return selected;
     }
 
-    public void AddCardToDeck(CardData card) => _state.deck.Add(card);
+    public event System.Action<CardData> OnCardAddedToDeck;
+
+    public void AddCardToDeck(CardData card)
+    {
+        _state.deck.Add(card);
+        OnCardAddedToDeck?.Invoke(card);
+    }
 
     public void RemoveCardFromDeck(CardData card) => _state.deck.Remove(card);
 }

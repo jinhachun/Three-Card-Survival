@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: SOS
   cardType: 4
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 4
     amount: 2
@@ -21,9 +24,9 @@ MonoBehaviour:
     amount: 2
   conditions: []
   effects:
-  - {fileID: 5318633485118816836}
+  - {fileID: 2904863837935781779}
   onRefuseCopyToDeck: 0
---- !u!114 &5318633485118816836
+--- !u!114 &2904863837935781779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

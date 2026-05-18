@@ -209,6 +209,157 @@ public static class PrefabCreator
     }
 
     // ──────────────────────────────────────────────
+    // CardListButton (CardListPanel 내부 카드 버튼)
+    // ──────────────────────────────────────────────
+    [MenuItem("ThreeCardSurvival/프리팹 생성/CardListButton")]
+    public static void CreateCardListButtonPrefab()
+    {
+        var root = new GameObject("CardListButton");
+        root.AddComponent<RectTransform>().sizeDelta = new Vector2(160f, 240f);
+        var img = root.AddComponent<Image>();
+        img.color = new Color(0.88f, 0.88f, 0.90f);
+        var btn = root.AddComponent<Button>();
+        btn.targetGraphic = img;
+
+        var nameObj  = CreateTMP(root, "NameText");
+        var nameText = nameObj.GetComponent<TextMeshProUGUI>();
+        nameText.text             = "Card Name";
+        nameText.alignment        = TextAlignmentOptions.Center;
+        nameText.fontSize         = 14;
+        nameText.fontStyle        = FontStyles.Bold;
+        nameText.color            = Color.black;
+        nameText.enableWordWrapping = true;
+        SetAnchors(nameObj, 0f, 0f, 1f, 1f, 8, 8, -8, -8);
+
+        string path = $"{PrefabPath}/CardListButton.prefab";
+        PrefabUtility.SaveAsPrefabAsset(root, path);
+        Object.DestroyImmediate(root);
+        AssetDatabase.Refresh();
+        Debug.Log($"[PrefabCreator] CardListButton 프리팹 생성 완료 → {path}");
+    }
+
+    // ──────────────────────────────────────────────
+    // CardListPanel (보상/강화 카드 선택 오버레이)
+    // ──────────────────────────────────────────────
+    [MenuItem("ThreeCardSurvival/프리팹 생성/CardListPanel")]
+    public static void CreateCardListPanelPrefab()
+    {
+        var buttonPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabPath}/CardView.prefab");
+        if (buttonPrefab == null)
+        {
+            Debug.LogError("[PrefabCreator] CardView 프리팹이 없습니다. 먼저 생성하세요.");
+            return;
+        }
+
+        // 루트: 전체화면 반투명 오버레이
+        var root     = new GameObject("CardListPanel");
+        var rootRect = root.AddComponent<RectTransform>();
+        rootRect.anchorMin = Vector2.zero;
+        rootRect.anchorMax = Vector2.one;
+        rootRect.offsetMin = Vector2.zero;
+        rootRect.offsetMax = Vector2.zero;
+        var overlayImg = root.AddComponent<Image>();
+        overlayImg.color = new Color(0f, 0f, 0f, 0.65f);
+        root.AddComponent<CanvasGroup>();
+        var clp = root.AddComponent<CardListPanel>();
+
+        // 중앙 패널 박스 (700×460)
+        var panel    = new GameObject("Panel");
+        panel.transform.SetParent(root.transform, false);
+        var panelImg = panel.AddComponent<Image>();
+        panelImg.color = new Color(0.15f, 0.15f, 0.18f);
+        var panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin       = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax       = new Vector2(0.5f, 0.5f);
+        panelRect.pivot           = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta       = new Vector2(700f, 460f);
+        panelRect.anchoredPosition = Vector2.zero;
+
+        // 타이틀 (상단 18%)
+        var titleObj = CreateTMP(panel, "TitleText");
+        var titleTmp = titleObj.GetComponent<TextMeshProUGUI>();
+        titleTmp.text      = "Title";
+        titleTmp.alignment = TextAlignmentOptions.Center;
+        titleTmp.fontSize  = 20;
+        titleTmp.fontStyle = FontStyles.Bold;
+        titleTmp.color     = Color.white;
+        SetAnchors(titleObj, 0f, 0.82f, 1f, 1f, 16, 0, -16, -8);
+
+        // ScrollRect (18% ~ 82%)
+        var scrollGo  = new GameObject("ScrollView");
+        scrollGo.transform.SetParent(panel.transform, false);
+        var scrollImg = scrollGo.AddComponent<Image>();
+        scrollImg.color = new Color(0.10f, 0.10f, 0.12f, 0.8f);
+        scrollGo.AddComponent<Mask>().showMaskGraphic = false;
+        var scrollRect = scrollGo.AddComponent<ScrollRect>();
+        scrollRect.horizontal        = true;
+        scrollRect.vertical          = false;
+        scrollRect.scrollSensitivity = 20f;
+        SetAnchors(scrollGo, 0f, 0.18f, 1f, 0.82f, 12, 8, -12, -8);
+
+        // Content — 카드 버튼이 Instantiate될 위치
+        var contentGo   = new GameObject("Content");
+        contentGo.transform.SetParent(scrollGo.transform, false);
+        var contentRect = contentGo.AddComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 0f);
+        contentRect.anchorMax = new Vector2(0f, 1f);
+        contentRect.pivot     = new Vector2(0f, 0.5f);
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+        var hlg = contentGo.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing              = 16f;
+        hlg.childAlignment       = TextAnchor.MiddleLeft;
+        hlg.childForceExpandWidth  = false;
+        hlg.childForceExpandHeight = true;
+        hlg.padding              = new RectOffset(16, 16, 8, 8);
+        var csf = contentGo.AddComponent<ContentSizeFitter>();
+        csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        csf.verticalFit   = ContentSizeFitter.FitMode.Unconstrained;
+
+        scrollRect.content  = contentRect;
+        scrollRect.viewport = scrollGo.GetComponent<RectTransform>();
+
+        // 확인 버튼 (하단 4%~16%)
+        var confirmGo  = new GameObject("ConfirmButton");
+        confirmGo.transform.SetParent(panel.transform, false);
+        var confirmImg = confirmGo.AddComponent<Image>();
+        confirmImg.color = new Color(0.2f, 0.55f, 0.2f);
+        var confirmBtn = confirmGo.AddComponent<Button>();
+        confirmBtn.targetGraphic = confirmImg;
+        SetAnchors(confirmGo, 0.3f, 0.04f, 0.7f, 0.16f, 0, 0, 0, 0);
+
+        var confirmTextGo = CreateTMP(confirmGo, "Text");
+        var confirmTmp    = confirmTextGo.GetComponent<TextMeshProUGUI>();
+        confirmTmp.text      = "OK";
+        confirmTmp.alignment = TextAlignmentOptions.Center;
+        confirmTmp.fontSize  = 18;
+        confirmTmp.color     = Color.white;
+        SetAnchors(confirmTextGo, 0f, 0f, 1f, 1f, 0, 0, 0, 0);
+
+        // SerializeField 연결
+        var so = new SerializedObject(clp);
+        so.FindProperty("content").objectReferenceValue          = contentGo.transform;
+        so.FindProperty("cardButtonPrefab").objectReferenceValue = buttonPrefab;
+        so.FindProperty("confirmButton").objectReferenceValue    = confirmBtn;
+        so.FindProperty("titleText").objectReferenceValue        = titleTmp;
+        so.ApplyModifiedProperties();
+
+        // 확인 버튼 onClick → OnConfirmClicked 연결
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(
+            confirmBtn.onClick,
+            clp.OnConfirmClicked
+        );
+
+        root.SetActive(false); // Show()가 호출될 때 활성화됨
+
+        string path = $"{PrefabPath}/CardListPanel.prefab";
+        PrefabUtility.SaveAsPrefabAsset(root, path);
+        Object.DestroyImmediate(root);
+        AssetDatabase.Refresh();
+        Debug.Log($"[PrefabCreator] CardListPanel 프리팹 생성 완료 → {path}");
+    }
+
+    // ──────────────────────────────────────────────
     // 유틸
     // ──────────────────────────────────────────────
     private static GameObject CreateTMP(GameObject parent, string name)

@@ -1,19 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8356371061329012691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cd77fd9a704a3c48be9c549ba993a55, type: 3}
-  m_Name: ResourceEffectSO
-  m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
-  resource: 2
-  amount: 2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28,10 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Forage
   cardType: 0
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 3
     amount: 2
   conditions: []
   effects:
-  - {fileID: -8356371061329012691}
+  - {fileID: 2177090943804972753}
   onRefuseCopyToDeck: 0
+--- !u!114 &2177090943804972753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cd77fd9a704a3c48be9c549ba993a55, type: 3}
+  m_Name: ResourceEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
+  resource: 2
+  amount: 2

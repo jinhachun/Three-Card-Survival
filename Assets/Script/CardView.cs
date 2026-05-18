@@ -23,6 +23,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private static readonly Color ColTrial    = new(0.78f, 0.18f, 0.18f);
     private static readonly Color ColEndOfDay = new(0.18f, 0.35f, 0.75f);
+    private static readonly Color ColBuilding = new(0.70f, 0.48f, 0.10f);
     private static readonly Color ColNormal   = new(0.22f, 0.55f, 0.22f);
 
     private RectTransform _rect;
@@ -33,7 +34,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     void Awake() => _rect = GetComponent<RectTransform>();
 
-    public void Setup(CardData card, int count, bool canSelect, bool isNew, Action onClick)
+    public void Setup(CardData card, int count, bool canSelect, bool isNew, Action onClick, GameState state = null)
     {
         _count = count;
         _isNew = isNew;
@@ -42,17 +43,19 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         (typeText.text, typeBackground.color) = card.cardType switch
         {
-            CardType.Trial  => ("TRIAL",      ColTrial),
-            CardType.DayEnd => ("END OF DAY", ColEndOfDay),
-            _               => ("",           ColNormal),
+            CardType.Trial    => ("TRIAL",      ColTrial),
+            CardType.DayEnd   => ("END OF DAY", ColEndOfDay),
+            CardType.Building => ("BUILD",      ColBuilding),
+            _                 => ("",           ColNormal),
         };
 
         cardImage.sprite  = card.cardSprite;
-        cardImage.enabled = card.cardSprite != null;
+        cardImage.enabled = true;
+        cardImage.color   = card.cardSprite != null ? Color.white : new Color(0.72f, 0.72f, 0.75f);
 
         costText.text      = BuildCostText(card, count);
         conditionText.text = BuildConditionText(card);
-        effectText.text    = BuildEffectText(card, count);
+        effectText.text    = BuildEffectText(card, count, state);
 
         costText.gameObject.SetActive(card.costs.Count > 0);
         conditionText.gameObject.SetActive(card.conditions.Count > 0);
@@ -157,7 +160,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         return sb.ToString().TrimEnd();
     }
 
-    private string BuildEffectText(CardData card, int count)
+    private string BuildEffectText(CardData card, int count, GameState state = null)
     {
         var sb = new StringBuilder();
         foreach (var effect in card.effects)
@@ -174,7 +177,22 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 sb.AppendLine(count > 1
                     ? $"Escape +{ec.amount * count * 100f:0}% (×{count})"
                     : $"Escape +{ec.amount * 100f:0}%");
+            else if (effect is BuildingProgressEffectSO bpe && bpe.buildingData != null)
+            {
+                var bd = bpe.buildingData;
+                sb.AppendLine($"{bd.buildingName} +{bd.progressPerUse}%");
+                if (state != null)
+                    sb.AppendLine(state.IsBuildingComplete(bd.buildingName)
+                        ? "Complete!"
+                        : $"(Currently {state.GetBuildingProgress(bd.buildingName)}%)");
+                if (bd.passiveResource != ResourceType.None)
+                    sb.AppendLine($"  > {bd.passiveResource} +{bd.passiveAmount}/turn");
+                if (bd.completionStatGain != StatType.None)
+                    sb.AppendLine($"  > {bd.completionStatGain} +{bd.completionStatAmount} on complete");
+            }
         }
+        if (card.cardType == CardType.Trial)
+            sb.AppendLine("Ignored: HP -1 per card played");
         return sb.ToString().TrimEnd();
     }
 }

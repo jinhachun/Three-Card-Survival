@@ -70,32 +70,33 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## 5. Unity / 프로젝트 규칙
 
 ### 아키텍처
-
-- 게임 데이터 → ScriptableObject (예: NodeData, SkillData)
-- 씬 동작 → MonoBehaviour (예: NodeView, MapManager)
-- 씬 오브젝트 참조(NodeView target 등)는 ScriptableObject에 넣지 않는다 — MonoBehaviour에 둔다.
-- 에디터 전용 코드(자동 수집 버튼 등)는 반드시 `#if UNITY_EDITOR`로 감싼다.
+- 게임 데이터 → ScriptableObject
+- 씬 동작 → MonoBehaviour
+- 씬 오브젝트 참조는 ScriptableObject에 넣지 않는다 — MonoBehaviour에 둔다.
+- 에디터 전용 코드는 반드시 `#if UNITY_EDITOR`로 감싼다.
 
 ### URP / 렌더링
-
 - 이 프로젝트는 **URP + 2D Renderer** 사용.
-- 스프라이트는 **Sprite-Lit-Default** 머티리얼 사용 — `Sprites/Default`는 2D 라이팅을 무시하므로 금지.
-- LineRenderer(엣지 시각화)도 URP 호환 머티리얼 필요.
-- 포그 오브 워는 2D 라이트(Spot Light 2D / Global Light 2D)로 구현.
+- 스프라이트는 **Sprite-Lit-Default** 머티리얼 사용.
+- LineRenderer도 URP 호환 머티리얼 필요.
 
 ### Odin Inspector
-
 - 인스펙터 UI는 Odin 사용: `[ShowIf]`, `[BoxGroup]`, `[EnumToggleButtons]`, `[Button]`, `[Required]`, `[ReadOnly]` 등.
-- Odin 버튼 라벨은 한국어로 작성.
+- Odin 버튼 라벨은 한국어로 작성 가능.
 
 ### 코딩 스타일
-
 - 클래스명 / 메서드명 / 변수명: **영어**
-- Odin 버튼 라벨, 디자인 의도 설명 주석: **한국어**
-- 주석은 WHY가 비명백할 때만 작성. WHAT 설명 주석은 쓰지 않는다.
+- 코드 주석, Odin 버튼 라벨: 한국어 가능
+- 주석은 WHY가 비명백할 때만 작성.
+
+### 인게임 텍스트 ← 절대 규칙
+- **인게임에 표시되는 모든 문자열은 영어로만 작성한다.**
+- 카드 설명, 효과 텍스트, HUD 표시, 팝업 메시지, 플로팅 텍스트 전부 해당.
+- 프로젝트에 한국어 폰트가 없으므로 한글이 화면에 표시되면 깨진다.
+- 유일한 예외: `Debug.Log` 등 에디터 전용 로그 메시지.
 
 ### 기획 참조
-
 - 새 기능 구현 전 `ClaudeRules/기획서.txt` 확인 필수.
 - 기획서와 충돌하는 코드 작성 금지.
 - 진행 현황은 `ClaudeRules/TODO.md` 참조.
+

@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Log
   cardType: 0
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 1
     amount: 2
   conditions: []
   effects:
-  - {fileID: 1430125080467417210}
+  - {fileID: 7126920741922430045}
   onRefuseCopyToDeck: 0
---- !u!114 &1430125080467417210
+--- !u!114 &7126920741922430045
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -1,19 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3585776821532801245
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cd77fd9a704a3c48be9c549ba993a55, type: 3}
-  m_Name: ResourceEffectSO
-  m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
-  resource: 3
-  amount: 5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28,10 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Dig Well
   cardType: 0
+  minDay: 1
+  requiredBuilding: 
+  cardSprite: {fileID: 0}
   costs:
   - resource: 5
     amount: 2
   conditions: []
   effects:
-  - {fileID: -3585776821532801245}
+  - {fileID: 1717912670534297755}
   onRefuseCopyToDeck: 0
+--- !u!114 &1717912670534297755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cd77fd9a704a3c48be9c549ba993a55, type: 3}
+  m_Name: ResourceEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceEffectSO
+  resource: 3
+  amount: 5
