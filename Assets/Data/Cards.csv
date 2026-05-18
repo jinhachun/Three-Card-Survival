@@ -1,20 +1,20 @@
-Name,CardType,MinDay,Costs,Conditions,Effects,OnRefuseCopyToDeck,RequiredBuilding,EscalatesOnDraw
-Forage,Resource,1,Water:2,,Resource:Food:2,false,,false
-Collect Water,Resource,1,Food:2,,Resource:Water:2,false,,false
-Mine,Resource,1,HP:2,,Resource:Stone:3,false,,false
-Log,Resource,1,HP:2,,Resource:Wood:3,false,,false
-End of Day,DayEnd,1,,,,false,,false
-Hunger,Trial,1,Food:2,,,true,,false
-Thirst,Trial,1,Water:2,,,true,,false
-Injury,Trial,1,HP:2,,,true,,false
-SOS,SOS,1,Stone:2|Wood:2,,EscapeChance:0.1,false,,false
-Craft Food,Resource,1,Stone:2,,Resource:Food:5,false,,false
-Dig Well,Resource,1,Wood:2,,Resource:Water:5,false,,false
-Hunting,Resource,2,HP:3,Strength:2,Resource:Food:6,false,Gym,false
-Rest,Resource,1,Food:2|Water:1,,Resource:HP:5,false,,false
-Fishing,Resource,2,HP:2,Agility:2,Resource:Food:3|Resource:Water:2,false,Training Ground,false
-Snare,Resource,2,Wood:1,Agility:2,Resource:Food:3,false,Training Ground,false
-Herbalism,Resource,3,Water:2,Intelligence:2,Resource:HP:5,false,Library,false
-Efficient Craft,Resource,3,HP:2,Intelligence:2,Resource:Stone:4,false,Library,false
-Starvation,Trial,3,Food:2,,,false,,true
-Dehydration,Trial,3,Water:2,,,false,,true
+Name,CardType,MinDay,Costs,Conditions,Effects,OnRefuseCopyToDeck,RequiredBuilding,EscalatesOnDraw,Sprite
+Forage,Resource,1,Water:2,,Resource:Food:2,false,,false,
+Collect Water,Resource,1,Food:2,,Resource:Water:2,false,,false,
+Mine,Resource,1,HP:2,,Resource:Stone:3,false,,false,
+Log,Resource,1,HP:2,,Resource:Wood:3,false,,false,
+End of Day,DayEnd,1,,,,false,,false,
+Hunger,Trial,1,Food:2,,,true,,false,
+Thirst,Trial,1,Water:2,,,true,,false,
+Injury,Trial,1,HP:2,,,true,,false,
+SOS,SOS,1,Stone:2|Wood:2,,EscapeChance:0.1,false,,false,
+Craft Food,Resource,1,Stone:2,,Resource:Food:5,false,,false,
+Dig Well,Resource,1,Wood:2,,Resource:Water:5,false,,false,
+Hunting,Resource,2,HP:3,Strength:2,Resource:Food:6,false,Gym,false,
+Rest,Resource,1,Food:2|Water:1,,Resource:HP:5,false,,false,
+Fishing,Resource,2,HP:2,Agility:2,Resource:Food:3|Resource:Water:2,false,Training Ground,false,
+Snare,Resource,2,Wood:1,Agility:2,Resource:Food:3,false,Training Ground,false,
+Herbalism,Resource,3,Water:2,Intelligence:2,Resource:HP:5,false,Library,false,
+Efficient Craft,Resource,3,HP:2,Intelligence:2,Resource:Stone:4,false,Library,false,
+Starvation,Trial,3,Food:2,,,false,,true,
+Dehydration,Trial,3,Water:2,,,false,,true,

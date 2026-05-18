@@ -52,7 +52,7 @@ public static class CsvCardImporter
 
     // ── 행 파싱 ───────────────────────────────────────────────────────
 
-    // 열 순서: Name(0) CardType(1) MinDay(2) Costs(3) Conditions(4) Effects(5) OnRefuseCopyToDeck(6) RequiredBuilding(7) EscalatesOnDraw(8, optional)
+    // 열 순서: Name(0) CardType(1) MinDay(2) Costs(3) Conditions(4) Effects(5) OnRefuseCopyToDeck(6) RequiredBuilding(7) EscalatesOnDraw(8) Sprite(9, optional)
     private static CardData ParseRow(string[] f)
     {
         if (f.Length < 7) return null;
@@ -78,6 +78,7 @@ public static class CsvCardImporter
 
         string requiredBuilding = f.Length > 7 ? f[7].Trim() : "";
         bool   escalatesOnDraw  = f.Length > 8 && f[8].Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
+        string spriteName       = f.Length > 9 ? f[9].Trim() : "";
 
         var asset = ScriptableObject.CreateInstance<CardData>();
         asset.cardName            = cardName;
@@ -89,6 +90,7 @@ public static class CsvCardImporter
         asset.effects            = effects;
         asset.onRefuseCopyToDeck = refuseStr.Equals("true", StringComparison.OrdinalIgnoreCase);
         asset.escalatesOnDraw    = escalatesOnDraw;
+        asset.cardSprite         = LoadSprite(spriteName);
 
         string assetPath = $"{SavePath}/{cardName}.asset";
         AssetDatabase.DeleteAsset(assetPath);
@@ -243,6 +245,22 @@ public static class CsvCardImporter
         var r = ScriptableObject.CreateInstance<CardRegistry>();
         AssetDatabase.CreateAsset(r, path);
         return r;
+    }
+
+    // ── 스프라이트 로더 ───────────────────────────────────────────────
+
+    private const string SpritePath = "Assets/Resources/Sprites";
+
+    private static Sprite LoadSprite(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        foreach (var ext in new[] { ".png", ".jpg", ".jpeg" })
+        {
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritePath}/{name}{ext}");
+            if (sprite != null) return sprite;
+        }
+        Debug.LogWarning($"[CsvCardImporter] 스프라이트 없음: {SpritePath}/{name}");
+        return null;
     }
 
     // ── CSV 파서 (따옴표 내 쉼표 대응) ───────────────────────────────
