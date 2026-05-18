@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Campfire
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Campfire
-  minDay: 2
+  minDay: 4
   buildCosts:
   - resource: 4
     amount: 2

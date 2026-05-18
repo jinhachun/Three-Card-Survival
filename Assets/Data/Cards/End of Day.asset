@@ -21,3 +21,4 @@ MonoBehaviour:
   conditions: []
   effects: []
   onRefuseCopyToDeck: 0
+  escalatesOnDraw: 0

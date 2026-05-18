@@ -24,6 +24,10 @@ public class GameState
     public Dictionary<string, int> buildingProgress   = new();
     public HashSet<string>         completedBuildings  = new();
 
+    // escalatesOnDraw 시련 카드 비용 증가량
+    public Dictionary<string, int> costEscalations = new();
+    public int GetCostEscalation(string name) => costEscalations.TryGetValue(name, out int v) ? v : 0;
+
     public int  GetBuildingProgress(string name) => buildingProgress.TryGetValue(name, out int v) ? v : 0;
     public bool IsBuildingComplete(string name)  => completedBuildings.Contains(name);
 

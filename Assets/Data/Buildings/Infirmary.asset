@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Infirmary
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Infirmary
-  minDay: 2
+  minDay: 4
   buildCosts:
   - resource: 5
     amount: 2

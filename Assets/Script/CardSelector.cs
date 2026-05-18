@@ -72,8 +72,11 @@ public class CardSelector : MonoBehaviour
 
     public bool CanSelect(CardData card, int count, GameState state)
     {
+        if (card.cardType == CardType.DayEnd) return true;
+
+        int escalation = state.GetCostEscalation(card.cardName);
         foreach (var cost in card.costs)
-            if (state.GetResource(cost.resource) < cost.amount * count + state.costPenalty)
+            if (state.GetResource(cost.resource) < (cost.amount + escalation) * count + state.costPenalty)
                 return false;
 
         foreach (var cond in card.conditions)

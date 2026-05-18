@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Build Infirmary
   cardType: 5
-  minDay: 2
+  minDay: 4
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs:
@@ -24,9 +24,10 @@ MonoBehaviour:
     amount: 2
   conditions: []
   effects:
-  - {fileID: 3151914143211326757}
+  - {fileID: 6655680270290866023}
   onRefuseCopyToDeck: 0
---- !u!114 &3151914143211326757
+  escalatesOnDraw: 0
+--- !u!114 &6655680270290866023
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

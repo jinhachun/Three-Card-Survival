@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Library
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Library
-  minDay: 3
+  minDay: 2
   buildCosts: []
   progressPerUse: 50
   completionStatGain: 3

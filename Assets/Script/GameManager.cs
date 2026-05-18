@@ -74,6 +74,16 @@ public class GameManager : MonoBehaviour
         }
 
         var cards = deckManager.GetThreeCards();
+
+        // 새로 뽑힌 escalatesOnDraw 카드 비용 영구 증가
+        var escalated = new System.Collections.Generic.HashSet<string>();
+        for (int i = deckManager.LastCarriedOverCount; i < cards.Count; i++)
+        {
+            var c = cards[i];
+            if (c.escalatesOnDraw && escalated.Add(c.cardName))
+                _state.costEscalations[c.cardName] = _state.GetCostEscalation(c.cardName) + 1;
+        }
+
         deckPileView?.UpdateCount(_state.deck.Count);
         cardSelector.ShowCards(cards, _state, deckManager.LastCarriedOverCount);
     }
@@ -84,10 +94,11 @@ public class GameManager : MonoBehaviour
 
         deckManager.SelectCard(card, count);
 
-        // 이월된 시련 카드 거부 패널티
-        foreach (var c in _state.carriedOver)
-            if (c.cardType == CardType.Trial)
-                effectResolver.OnRefuseTrial(c, _state);
+        // 이월된 시련 카드 거부 패널티 (DayEnd 선택 시에는 발동 안 함)
+        if (card.cardType != CardType.DayEnd)
+            foreach (var c in _state.carriedOver)
+                if (c.cardType == CardType.Trial)
+                    effectResolver.OnRefuseTrial(c, _state);
 
         if (card.cardType == CardType.DayEnd)
         {

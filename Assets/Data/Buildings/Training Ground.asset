@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Training Ground
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Training Ground
-  minDay: 3
+  minDay: 2
   buildCosts: []
   progressPerUse: 50
   completionStatGain: 2

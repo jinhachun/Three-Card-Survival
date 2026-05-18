@@ -53,7 +53,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         cardImage.enabled = true;
         cardImage.color   = card.cardSprite != null ? Color.white : new Color(0.72f, 0.72f, 0.75f);
 
-        costText.text      = BuildCostText(card, count);
+        costText.text      = BuildCostText(card, count, state);
         conditionText.text = BuildConditionText(card);
         effectText.text    = BuildEffectText(card, count, state);
 
@@ -142,13 +142,17 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             });
     }
 
-    private string BuildCostText(CardData card, int count)
+    private string BuildCostText(CardData card, int count, GameState state = null)
     {
         var sb = new StringBuilder();
+        int escalation = state?.GetCostEscalation(card.cardName) ?? 0;
         foreach (var cost in card.costs)
+        {
+            int effective = cost.amount + escalation;
             sb.AppendLine(count > 1
-                ? $"{cost.resource} -{cost.amount * count} (×{count})"
-                : $"{cost.resource} -{cost.amount}");
+                ? $"{cost.resource} -{effective * count} (×{count})"
+                : $"{cost.resource} -{effective}");
+        }
         return sb.ToString().TrimEnd();
     }
 
@@ -190,6 +194,11 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 if (bd.completionStatGain != StatType.None)
                     sb.AppendLine($"  > {bd.completionStatGain} +{bd.completionStatAmount} on complete");
             }
+        }
+        if (card.escalatesOnDraw)
+        {
+            int esc = state?.GetCostEscalation(card.cardName) ?? 0;
+            sb.AppendLine(esc > 0 ? $"Cost escalates each draw (+{esc})" : "Cost escalates each draw");
         }
         if (card.cardType == CardType.Trial)
             sb.AppendLine("Ignored: HP -1 per card played");

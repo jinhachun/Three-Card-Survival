@@ -47,4 +47,8 @@ public class CardData : ScriptableObject
 
     [BoxGroup("시련"), ShowIf("@cardType == CardType.Trial")]
     public bool onRefuseCopyToDeck;
+
+    // 손패에 등장할 때마다 비용 영구 +1
+    [BoxGroup("시련"), ShowIf("@cardType == CardType.Trial")]
+    public bool escalatesOnDraw;
 }

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8001633789483095536
+--- !u!114 &-3211523272325681312
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -38,5 +38,6 @@ MonoBehaviour:
     amount: 1
   conditions: []
   effects:
-  - {fileID: -8001633789483095536}
+  - {fileID: -3211523272325681312}
   onRefuseCopyToDeck: 0
+  escalatesOnDraw: 0

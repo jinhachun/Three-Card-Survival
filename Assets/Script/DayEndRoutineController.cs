@@ -38,9 +38,12 @@ public class DayEndRoutineController : MonoBehaviour
         }
         deckManager.AddCardToDeck(CardUtils.Clone(chosen));
 
-        // 2. 랜덤 시련 카드 1장 덱에 추가
-        var pool = cardRegistry.trialPool;
-        deckManager.AddCardToDeck(CardUtils.Clone(pool[UnityEngine.Random.Range(0, pool.Length)]));
+        // 2. 랜덤 시련 카드 1장 덱에 추가 (minDay 필터링)
+        var trialCandidates = new List<CardData>();
+        foreach (var t in cardRegistry.trialPool)
+            if (t.minDay <= state.day) trialCandidates.Add(t);
+        if (trialCandidates.Count > 0)
+            deckManager.AddCardToDeck(CardUtils.Clone(trialCandidates[UnityEngine.Random.Range(0, trialCandidates.Count)]));
 
         // 5. 마일스톤: 5일차에 SOS 카드 추가
         if (state.day == 5)

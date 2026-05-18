@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Build Library
   cardType: 5
-  minDay: 3
+  minDay: 2
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs: []
   conditions: []
   effects:
-  - {fileID: 6848722613881963510}
+  - {fileID: 2245516890219763858}
   onRefuseCopyToDeck: 0
---- !u!114 &6848722613881963510
+  escalatesOnDraw: 0
+--- !u!114 &2245516890219763858
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

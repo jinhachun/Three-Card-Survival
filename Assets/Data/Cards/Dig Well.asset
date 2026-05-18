@@ -22,9 +22,10 @@ MonoBehaviour:
     amount: 2
   conditions: []
   effects:
-  - {fileID: 1717912670534297755}
+  - {fileID: 2091441863645487614}
   onRefuseCopyToDeck: 0
---- !u!114 &1717912670534297755
+  escalatesOnDraw: 0
+--- !u!114 &2091441863645487614
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

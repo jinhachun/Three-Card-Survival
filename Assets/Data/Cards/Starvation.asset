@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e42e2eee3eae0147904c240e8c190ac, type: 3}
-  m_Name: Thirst
+  m_Name: Starvation
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: Thirst
+  cardName: Starvation
   cardType: 2
-  minDay: 1
+  minDay: 3
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs:
-  - resource: 3
+  - resource: 2
     amount: 2
   conditions: []
   effects: []
-  onRefuseCopyToDeck: 1
-  escalatesOnDraw: 0
+  onRefuseCopyToDeck: 0
+  escalatesOnDraw: 1

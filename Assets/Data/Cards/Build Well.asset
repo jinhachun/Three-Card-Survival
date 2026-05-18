@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-1169118646425544089
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
-  m_Name: BuildingProgressEffectSO
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
-  buildingData: {fileID: 11400000, guid: 2a1eabc63ed8a0e43a5393eb851b613c, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Build Well
   cardType: 5
-  minDay: 2
+  minDay: 4
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs:
@@ -35,5 +22,19 @@ MonoBehaviour:
     amount: 2
   conditions: []
   effects:
-  - {fileID: -1169118646425544089}
+  - {fileID: 3466357100637236677}
   onRefuseCopyToDeck: 0
+  escalatesOnDraw: 0
+--- !u!114 &3466357100637236677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
+  m_Name: BuildingProgressEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
+  buildingData: {fileID: 11400000, guid: 2a1eabc63ed8a0e43a5393eb851b613c, type: 2}

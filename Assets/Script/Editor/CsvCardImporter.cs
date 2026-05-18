@@ -52,7 +52,7 @@ public static class CsvCardImporter
 
     // ── 행 파싱 ───────────────────────────────────────────────────────
 
-    // 열 순서: Name(0) CardType(1) MinDay(2) Costs(3) Conditions(4) Effects(5) OnRefuseCopyToDeck(6) RequiredBuilding(7, optional)
+    // 열 순서: Name(0) CardType(1) MinDay(2) Costs(3) Conditions(4) Effects(5) OnRefuseCopyToDeck(6) RequiredBuilding(7) EscalatesOnDraw(8, optional)
     private static CardData ParseRow(string[] f)
     {
         if (f.Length < 7) return null;
@@ -77,6 +77,7 @@ public static class CsvCardImporter
         if (minDay < 1) minDay = 1;
 
         string requiredBuilding = f.Length > 7 ? f[7].Trim() : "";
+        bool   escalatesOnDraw  = f.Length > 8 && f[8].Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
 
         var asset = ScriptableObject.CreateInstance<CardData>();
         asset.cardName            = cardName;
@@ -87,6 +88,7 @@ public static class CsvCardImporter
         asset.conditions         = ParseConditions(conditionsStr);
         asset.effects            = effects;
         asset.onRefuseCopyToDeck = refuseStr.Equals("true", StringComparison.OrdinalIgnoreCase);
+        asset.escalatesOnDraw    = escalatesOnDraw;
 
         string assetPath = $"{SavePath}/{cardName}.asset";
         AssetDatabase.DeleteAsset(assetPath);

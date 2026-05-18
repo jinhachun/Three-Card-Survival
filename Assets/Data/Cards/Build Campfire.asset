@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5961577422927184921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
-  m_Name: BuildingProgressEffectSO
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
-  buildingData: {fileID: 11400000, guid: 754710dbd9b13e54a962a51dd16149a5, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Build Campfire
   cardType: 5
-  minDay: 2
+  minDay: 4
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs:
@@ -35,5 +22,19 @@ MonoBehaviour:
     amount: 2
   conditions: []
   effects:
-  - {fileID: -5961577422927184921}
+  - {fileID: 8260299348865472160}
   onRefuseCopyToDeck: 0
+  escalatesOnDraw: 0
+--- !u!114 &8260299348865472160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
+  m_Name: BuildingProgressEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
+  buildingData: {fileID: 11400000, guid: 754710dbd9b13e54a962a51dd16149a5, type: 2}

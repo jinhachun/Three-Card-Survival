@@ -24,9 +24,10 @@ MonoBehaviour:
   - stat: 2
     minAmount: 2
   effects:
-  - {fileID: 7262334890102983019}
+  - {fileID: 5351243497306630273}
   onRefuseCopyToDeck: 0
---- !u!114 &7262334890102983019
+  escalatesOnDraw: 0
+--- !u!114 &5351243497306630273
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

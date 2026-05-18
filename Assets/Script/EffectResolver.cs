@@ -15,8 +15,9 @@ public class EffectResolver : MonoBehaviour
 
     public void ApplyCard(CardData card, int count, GameState state)
     {
+        int escalation = state.GetCostEscalation(card.cardName);
         foreach (var cost in card.costs)
-            state.AddResource(cost.resource, -(cost.amount * count) - state.costPenalty);
+            state.AddResource(cost.resource, -((cost.amount + escalation) * count) - state.costPenalty);
 
         // 건물 카드라면 Apply 전 완성 여부 스냅샷
         BuildingProgressEffectSO buildingEffect = null;

@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3616206798339599445
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
-  m_Name: BuildingProgressEffectSO
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
-  buildingData: {fileID: 11400000, guid: ca4ac97f550a1824790910fbba66eb09, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27,11 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: Build Gym
   cardType: 5
-  minDay: 3
+  minDay: 2
   requiredBuilding: 
   cardSprite: {fileID: 0}
   costs: []
   conditions: []
   effects:
-  - {fileID: -3616206798339599445}
+  - {fileID: 2981700064017607593}
   onRefuseCopyToDeck: 0
+  escalatesOnDraw: 0
+--- !u!114 &2981700064017607593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3788a68f5c137224aaf3ac6ea0bf085f, type: 3}
+  m_Name: BuildingProgressEffectSO
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingProgressEffectSO
+  buildingData: {fileID: 11400000, guid: ca4ac97f550a1824790910fbba66eb09, type: 2}

@@ -42,9 +42,17 @@ public static class CsvBuildingImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
+        // Refresh 후 in-memory 참조가 stale해지므로 디스크에서 다시 로드
+        var savedBuildings = new List<BuildingData>();
+        foreach (var b in buildings)
+        {
+            var loaded = AssetDatabase.LoadAssetAtPath<BuildingData>($"{BuildingSavePath}/{b.buildingName}.asset");
+            if (loaded != null) savedBuildings.Add(loaded);
+        }
+
         // Build X 카드 생성
         var buildCards = new List<CardData>();
-        foreach (var b in buildings)
+        foreach (var b in savedBuildings)
         {
             var card = CreateBuildCard(b);
             if (card != null) buildCards.Add(card);
@@ -83,22 +91,18 @@ public static class CsvBuildingImporter
         int.TryParse(f[2].Trim(), out int progressPerUse);
         if (progressPerUse < 1) progressPerUse = 25;
 
-        string assetPath = $"{BuildingSavePath}/{name}.asset";
-        AssetDatabase.DeleteAsset(assetPath);
         var asset = ScriptableObject.CreateInstance<BuildingData>();
-        AssetDatabase.CreateAsset(asset, assetPath);
-
         asset.buildingName   = name;
         asset.minDay         = minDay;
         asset.progressPerUse = progressPerUse;
         asset.buildCosts     = ParseCosts(f[3].Trim());
-
         ParseCompletionEffect(f[4].Trim(), asset);
         ParsePassiveEffect(f[5].Trim(), asset);
+        asset.unlocksCards   = f.Length > 6 ? ParseUnlocks(f[6].Trim()) : Array.Empty<string>();
 
-        asset.unlocksCards = f.Length > 6 ? ParseUnlocks(f[6].Trim()) : Array.Empty<string>();
-
-        EditorUtility.SetDirty(asset);
+        string assetPath = $"{BuildingSavePath}/{name}.asset";
+        AssetDatabase.DeleteAsset(assetPath);
+        AssetDatabase.CreateAsset(asset, assetPath);
         return asset;
     }
 
@@ -162,22 +166,21 @@ public static class CsvBuildingImporter
     {
         string cardName  = $"Build {building.buildingName}";
         string assetPath = $"{CardSavePath}/{cardName}.asset";
-        AssetDatabase.DeleteAsset(assetPath);
+
+        var effect = ScriptableObject.CreateInstance<BuildingProgressEffectSO>();
+        effect.buildingData = building;
+        effect.name         = nameof(BuildingProgressEffectSO);
 
         var card = ScriptableObject.CreateInstance<CardData>();
         card.cardName  = cardName;
         card.cardType  = CardType.Building;
         card.minDay    = building.minDay;
         card.costs     = new List<CardCost>(building.buildCosts);
+        card.effects   = new List<CardEffectSO> { effect };
 
+        AssetDatabase.DeleteAsset(assetPath);
         AssetDatabase.CreateAsset(card, assetPath);
-
-        var effect = ScriptableObject.CreateInstance<BuildingProgressEffectSO>();
-        effect.buildingData = building;
-        effect.name         = nameof(BuildingProgressEffectSO);
         AssetDatabase.AddObjectToAsset(effect, card);
-
-        card.effects = new List<CardEffectSO> { effect };
         EditorUtility.SetDirty(card);
         return card;
     }
