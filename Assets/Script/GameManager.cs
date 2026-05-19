@@ -21,9 +21,11 @@ public class GameManager : MonoBehaviour
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameOverPanel;
     [BoxGroup("UI"), Required] [SerializeField] private GameObject gameClearPanel;
     // 씬에 배치 후 연결 (미연결 시 무시)
+    [BoxGroup("UI")] [SerializeField] private TMP_Text              escapeChancePreviewText;
     [BoxGroup("UI")] [SerializeField] private TMP_Text              dayAnnouncementText;
     [BoxGroup("UI")] [SerializeField] private BuildingCompletePopup buildingCompletePopup;
     [BoxGroup("UI")] [SerializeField] private PassiveNotifier       passiveNotifier;
+    [BoxGroup("UI")] [SerializeField] private RectTransform        buildingNotifyAnchor;
 
     private GameState _state;
     private GamePhase _phase;
@@ -36,7 +38,13 @@ public class GameManager : MonoBehaviour
         cardSelector.OnCardSelected         += OnCardSelected;
         cardSelector.OnAllCardsUnselectable += OnAllCardsUnselectable;
         if (buildingCompletePopup != null) effectResolver.OnBuildingCompleted += buildingCompletePopup.Show;
-        if (passiveNotifier       != null) effectResolver.OnPassiveApplied    += passiveNotifier.Notify;
+        if (passiveNotifier != null) effectResolver.OnPassiveApplied += bd =>
+        {
+            Vector2 wp = buildingNotifyAnchor != null
+                ? (Vector2)buildingNotifyAnchor.TransformPoint(buildingNotifyAnchor.rect.center)
+                : default;
+            passiveNotifier.Notify(bd, wp);
+        };
     }
 
     void OnDisable()
@@ -44,7 +52,6 @@ public class GameManager : MonoBehaviour
         cardSelector.OnCardSelected         -= OnCardSelected;
         cardSelector.OnAllCardsUnselectable -= OnAllCardsUnselectable;
         if (buildingCompletePopup != null) effectResolver.OnBuildingCompleted -= buildingCompletePopup.Show;
-        if (passiveNotifier       != null) effectResolver.OnPassiveApplied    -= passiveNotifier.Notify;
     }
 
     void InitGame()
@@ -88,7 +95,7 @@ public class GameManager : MonoBehaviour
         cardSelector.ShowCards(cards, _state, deckManager.LastCarriedOverCount);
     }
 
-    void OnCardSelected(CardData card, int count)
+    void OnCardSelected(CardData card, int count, Vector2 cardWorldCenter)
     {
         if (_phase != GamePhase.PlayerTurn) return;
 
@@ -103,11 +110,25 @@ public class GameManager : MonoBehaviour
         if (card.cardType == CardType.DayEnd)
         {
             _phase = GamePhase.DayEndChoice;
+            if (escapeChancePreviewText != null)
+                escapeChancePreviewText.text = $"Escape chance: {escapeSystem.PreviewEscapeChance(_state):P0}";
             OpenPanel(dayEndChoicePanel);
             return;
         }
 
+        int snapHp = _state.hp, snapFood = _state.food, snapWater = _state.water,
+            snapStone = _state.stone, snapWood = _state.wood;
+
         effectResolver.ApplyCard(card, count, _state);
+
+        if (passiveNotifier != null)
+        {
+            ShowDelta(ResourceType.HP,    _state.hp    - snapHp,    cardWorldCenter);
+            ShowDelta(ResourceType.Food,  _state.food  - snapFood,  cardWorldCenter);
+            ShowDelta(ResourceType.Water, _state.water - snapWater, cardWorldCenter);
+            ShowDelta(ResourceType.Stone, _state.stone - snapStone, cardWorldCenter);
+            ShowDelta(ResourceType.Wood,  _state.wood  - snapWood,  cardWorldCenter);
+        }
 
         if (_state.hp <= 0)
             EnterGameOver();
@@ -134,10 +155,10 @@ public class GameManager : MonoBehaviour
     public void OnChoiceContinue()
     {
         ClosePanel(dayEndChoicePanel);
+        // EndOfDay 선택을 취소 — carriedOver에 되돌려 같은 3장을 다시 표시
         var dayEndCard = _state.usedCards[^1];
         _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
-        deckManager.AddCardToDeck(dayEndCard);
-        deckManager.Shuffle();
+        _state.carriedOver.Add(dayEndCard);
         EnterPlayerTurn();
     }
 
@@ -151,6 +172,7 @@ public class GameManager : MonoBehaviour
         else
         {
             effectResolver.ApplyEscapeFailurePenalty(_state);
+            if (passiveNotifier != null) passiveNotifier.NotifyPenalty(_state.costPenalty);
             var dayEndCard = _state.usedCards[^1];
             _state.usedCards.RemoveAt(_state.usedCards.Count - 1);
             deckManager.AddCardToDeck(dayEndCard);
@@ -195,6 +217,11 @@ public class GameManager : MonoBehaviour
     }
 
     // ── Day 알림 ────────────────────────────────────────────────────
+
+    private void ShowDelta(ResourceType resource, int delta, Vector2 worldPos)
+    {
+        if (delta != 0) passiveNotifier.NotifyDelta(resource, delta, worldPos);
+    }
 
     private void PlayDayAnnouncement()
     {

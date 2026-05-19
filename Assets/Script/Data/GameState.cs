@@ -35,6 +35,8 @@ public class GameState
     public int   day          = 1;
     public float escapeChance = 0f;
     public int   costPenalty  = 0;  // 탈출 실패 누적 패널티
+    public bool  freeTurnPending = false;  // Convert 카드 사용 후 다음 날 발동 대기
+    public bool  freeTurnActive  = false;  // 이번 날 모든 비용 0
     public bool  isGameOver   = false;
     public bool  isClear      = false;
 

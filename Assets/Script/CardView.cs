@@ -13,9 +13,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     [Required] [SerializeField] private Image           typeBackground;
     [Required] [SerializeField] private TextMeshProUGUI typeText;
     [Required] [SerializeField] private Image           cardImage;
-    [Required] [SerializeField] private TextMeshProUGUI costText;
-    [Required] [SerializeField] private TextMeshProUGUI conditionText;
-    [Required] [SerializeField] private TextMeshProUGUI effectText;
+    [Required] [SerializeField] private TextMeshProUGUI descText;
     [Required] [SerializeField] private Image           stackShadow;
     [Required] [SerializeField] private TextMeshProUGUI countBadge;
     [Required] [SerializeField] private Button          button;
@@ -34,7 +32,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     void Awake() => _rect = GetComponent<RectTransform>();
 
-    public void Setup(CardData card, int count, bool canSelect, bool isNew, Action onClick, GameState state = null)
+    public void Setup(CardData card, int count, bool canSelect, bool isNew, Action<Vector2> onClick, GameState state = null)
     {
         _count = count;
         _isNew = isNew;
@@ -53,12 +51,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         cardImage.enabled = true;
         cardImage.color   = card.cardSprite != null ? Color.white : new Color(0.72f, 0.72f, 0.75f);
 
-        costText.text      = BuildCostText(card, count, state);
-        conditionText.text = BuildConditionText(card);
-        effectText.text    = BuildEffectText(card, count, state);
-
-        costText.gameObject.SetActive(card.costs.Count > 0);
-        conditionText.gameObject.SetActive(card.conditions.Count > 0);
+        descText.text = BuildDescText(card, count, state);
 
         stackShadow.gameObject.SetActive(count > 1);
         countBadge.gameObject.SetActive(count > 1);
@@ -70,7 +63,12 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         button.onClick.RemoveAllListeners();
         if (canSelect)
-            button.onClick.AddListener(() => PlaySelectAnimation(onClick));
+            button.onClick.AddListener(() =>
+            {
+                // 애니메이션 전 클릭 시점의 카드 중심 월드 좌표 캡처
+                Vector2 worldCenter = _rect.TransformPoint(_rect.rect.center);
+                PlaySelectAnimation(() => onClick?.Invoke(worldCenter));
+            });
     }
 
     public void PrepareForAnimation()
@@ -142,66 +140,115 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             });
     }
 
-    private string BuildCostText(CardData card, int count, GameState state = null)
+    private string BuildDescText(CardData card, int count, GameState state = null)
     {
         var sb = new StringBuilder();
+
+        bool freeTurn  = state?.freeTurnActive ?? false;
         int escalation = state?.GetCostEscalation(card.cardName) ?? 0;
+        int penalty    = state?.costPenalty ?? 0;
+        int discount   = freeTurn ? 1 : 0;
         foreach (var cost in card.costs)
-        {
-            int effective = cost.amount + escalation;
-            sb.AppendLine(count > 1
-                ? $"{cost.resource} -{effective * count} (×{count})"
-                : $"{cost.resource} -{effective}");
-        }
-        return sb.ToString().TrimEnd();
-    }
+            sb.AppendLine(R($"{ResourceIcons.Tag(cost.resource)} -{Mathf.Max(0, cost.amount + escalation + penalty - discount)}"));
 
-    private string BuildConditionText(CardData card)
-    {
-        var sb = new StringBuilder();
         foreach (var cond in card.conditions)
-            sb.AppendLine($"Req: {cond.stat} {cond.minAmount}+");
-        return sb.ToString().TrimEnd();
-    }
+            sb.AppendLine(Bl($"Req: {cond.stat} {cond.minAmount}+"));
 
-    private string BuildEffectText(CardData card, int count, GameState state = null)
-    {
-        var sb = new StringBuilder();
+        var shownLsKeys = new System.Collections.Generic.HashSet<(int, int, int)>();
         foreach (var effect in card.effects)
         {
             if (effect is ResourceEffectSO re)
-                sb.AppendLine(count > 1
-                    ? $"{re.resource} {(re.amount * count >= 0 ? "+" : "")}{re.amount * count} (×{count})"
-                    : $"{re.resource} {(re.amount >= 0 ? "+" : "")}{re.amount}");
+            {
+                string icon = ResourceIcons.Tag(re.resource);
+                if (re.isRandom)
+                    sb.AppendLine(B(count > 1
+                        ? $"{icon} +{re.randomMin * count}~{re.randomMax * count} (×{count})"
+                        : $"{icon} +{re.randomMin}~{re.randomMax}"));
+                else
+                {
+                    int total = re.amount * count;
+                    string line = count > 1
+                        ? $"{icon} {(total >= 0 ? "+" : "")}{total} (×{count})"
+                        : $"{icon} {(re.amount >= 0 ? "+" : "")}{re.amount}";
+                    sb.AppendLine(re.amount >= 0 ? B(line) : R(line));
+                }
+            }
             else if (effect is StatEffectSO se)
-                sb.AppendLine(count > 1
-                    ? $"{se.stat} {(se.amount * count >= 0 ? "+" : "")}{se.amount * count} (×{count})"
-                    : $"{se.stat} {(se.amount >= 0 ? "+" : "")}{se.amount}");
+            {
+                int total = se.amount * count;
+                string line = count > 1
+                    ? $"{se.stat} {(total >= 0 ? "+" : "")}{total} (×{count})"
+                    : $"{se.stat} {(se.amount >= 0 ? "+" : "")}{se.amount}";
+                sb.AppendLine(se.amount >= 0 ? B(line) : R(line));
+            }
             else if (effect is EscapeChanceEffectSO ec)
-                sb.AppendLine(count > 1
+                sb.AppendLine(B(count > 1
                     ? $"Escape +{ec.amount * count * 100f:0}% (×{count})"
-                    : $"Escape +{ec.amount * 100f:0}%");
+                    : $"Escape +{ec.amount * 100f:0}%"));
             else if (effect is BuildingProgressEffectSO bpe && bpe.buildingData != null)
             {
                 var bd = bpe.buildingData;
-                sb.AppendLine($"{bd.buildingName} +{bd.progressPerUse}%");
+                sb.AppendLine(B($"{bd.buildingName} +{bd.progressPerUse}%"));
                 if (state != null)
-                    sb.AppendLine(state.IsBuildingComplete(bd.buildingName)
+                    sb.AppendLine(B(state.IsBuildingComplete(bd.buildingName)
                         ? "Complete!"
-                        : $"(Currently {state.GetBuildingProgress(bd.buildingName)}%)");
+                        : $"(Currently {state.GetBuildingProgress(bd.buildingName)}%)"));
                 if (bd.passiveResource != ResourceType.None)
-                    sb.AppendLine($"  > {bd.passiveResource} +{bd.passiveAmount}/turn");
+                    sb.AppendLine(B($"  > {ResourceIcons.Tag(bd.passiveResource)} +{bd.passiveAmount}/turn"));
                 if (bd.completionStatGain != StatType.None)
-                    sb.AppendLine($"  > {bd.completionStatGain} +{bd.completionStatAmount} on complete");
+                    sb.AppendLine(B($"  > {bd.completionStatGain} +{bd.completionStatAmount} on complete"));
             }
+            else if (effect is RaidEffectSO raid)
+            {
+                sb.AppendLine(R($"{ResourceIcons.Tag(ResourceType.HP)} -{raid.minDrain}~{raid.maxDrain}"));
+                sb.AppendLine(B($"{ResourceIcons.Tag(ResourceType.Stone)} {ResourceIcons.Tag(ResourceType.Wood)} +(equal to drained)"));
+            }
+            else if (effect is LastStandEffectSO ls)
+            {
+                // 같은 threshold+amount를 공유하는 효과들을 한 줄로 묶기
+                if (shownLsKeys.Contains((ls.hpThreshold, ls.bigAmount, ls.smallAmount))) continue;
+                shownLsKeys.Add((ls.hpThreshold, ls.bigAmount, ls.smallAmount));
+
+                var icons = new StringBuilder();
+                foreach (var e2 in card.effects)
+                    if (e2 is LastStandEffectSO ls2
+                        && ls2.hpThreshold == ls.hpThreshold
+                        && ls2.bigAmount   == ls.bigAmount
+                        && ls2.smallAmount == ls.smallAmount)
+                        icons.Append(ResourceIcons.Tag(ls2.resource));
+
+                string hpIcon = ResourceIcons.Tag(ResourceType.HP);
+                sb.AppendLine(R($"{hpIcon} ≤ {ls.hpThreshold}  →  {icons} +{ls.bigAmount}"));
+                sb.AppendLine(B($"{hpIcon} > {ls.hpThreshold}  →  {icons} +{ls.smallAmount}"));
+            }
+            else if (effect is RemoveTrialEffectSO rt)
+                sb.AppendLine(B(rt.source == RemoveTrialEffectSO.TrialSource.Deck
+                    ? "Remove random Trial from deck"
+                    : "Dismiss a Trial in hand"));
+            else if (effect is TriggerCardEffectSO tc)
+                sb.AppendLine(B(tc.source == TriggerCardEffectSO.CardSource.Deck
+                    ? "Trigger random card from deck"
+                    : "Recall random used card"));
+            else if (effect is FreeTurnEffectSO)
+                sb.AppendLine(B("Next day: all costs -1"));
+            else if (effect is BlueprintEffectSO bp)
+                sb.AppendLine(B($"Random building: +{bp.progressMin}~{bp.progressMax}%"));
+            else if (effect is AllBuildingProgressEffectSO abp)
+                sb.AppendLine(B($"All buildings: +{abp.progressAmount}%"));
         }
+
         if (card.escalatesOnDraw)
         {
             int esc = state?.GetCostEscalation(card.cardName) ?? 0;
-            sb.AppendLine(esc > 0 ? $"Cost escalates each draw (+{esc})" : "Cost escalates each draw");
+            sb.AppendLine(R(esc > 0 ? $"Cost escalates each draw (+{esc})" : "Cost escalates each draw"));
         }
         if (card.cardType == CardType.Trial)
-            sb.AppendLine("Ignored: HP -1 per card played");
+            sb.AppendLine(R("Ignored: HP -1 per card played"));
+
         return sb.ToString().TrimEnd();
     }
+
+    private static string R(string s)  => $"<color=#CC2222>{s}</color>";
+    private static string B(string s)  => $"<color=#111111>{s}</color>";
+    private static string Bl(string s) => $"<color=#2255BB>{s}</color>";
 }

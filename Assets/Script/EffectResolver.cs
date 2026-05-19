@@ -16,34 +16,29 @@ public class EffectResolver : MonoBehaviour
     public void ApplyCard(CardData card, int count, GameState state)
     {
         int escalation = state.GetCostEscalation(card.cardName);
+        int discount   = state.freeTurnActive ? 1 : 0;
         foreach (var cost in card.costs)
-            state.AddResource(cost.resource, -((cost.amount + escalation) * count) - state.costPenalty);
+            state.AddResource(cost.resource, -Mathf.Max(0, cost.amount + escalation + state.costPenalty - discount));
 
-        // 건물 카드라면 Apply 전 완성 여부 스냅샷
-        BuildingProgressEffectSO buildingEffect = null;
-        bool wasComplete = false;
-        foreach (var effect in card.effects)
-        {
-            if (effect is BuildingProgressEffectSO bpe)
-            {
-                buildingEffect = bpe;
-                wasComplete    = state.IsBuildingComplete(bpe.buildingData.buildingName);
-                break;
-            }
-        }
+        // 어떤 효과든 건물을 완성할 수 있으므로 스냅샷으로 감지
+        var completedBefore = new System.Collections.Generic.HashSet<string>(state.completedBuildings);
 
         for (int i = 0; i < count; i++)
             foreach (var effect in card.effects)
                 effect.Apply(state);
 
-        // 방금 완성된 경우에만 처리 (이미 완성 상태였으면 스킵)
-        if (buildingEffect != null && !wasComplete
-            && state.IsBuildingComplete(buildingEffect.buildingData.buildingName))
+        // 새로 완성된 건물 처리
+        foreach (var buildingName in state.completedBuildings)
         {
-            state.deck.RemoveAll(c => c.cardName == card.cardName);
-            state.carriedOver.RemoveAll(c => c.cardName == card.cardName);
-            state.usedCards.RemoveAll(c => c.cardName == card.cardName);
-            OnBuildingCompleted?.Invoke(buildingEffect.buildingData);
+            if (completedBefore.Contains(buildingName)) continue;
+
+            string buildCardName = $"Build {buildingName}";
+            state.deck.RemoveAll(c => c.cardName == buildCardName);
+            state.carriedOver.RemoveAll(c => c.cardName == buildCardName);
+            state.usedCards.RemoveAll(c => c.cardName == buildCardName);
+
+            var bd = System.Array.Find(buildingRegistry.buildings, b => b.buildingName == buildingName);
+            if (bd != null) OnBuildingCompleted?.Invoke(bd);
         }
 
         // 완성된 건물 패시브 적용 (매 카드 선택 시)

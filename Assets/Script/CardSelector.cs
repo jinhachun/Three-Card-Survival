@@ -10,7 +10,7 @@ public class CardSelector : MonoBehaviour
     // 덱 파일의 RectTransform — 미연결 시 기존 애니메이션으로 폴백
     [SerializeField] private RectTransform deckPileRect;
 
-    public event Action<CardData, int> OnCardSelected;
+    public event Action<CardData, int, Vector2> OnCardSelected;
     public event Action OnAllCardsUnselectable;
 
     private bool _animating;
@@ -34,11 +34,11 @@ public class CardSelector : MonoBehaviour
                 var capturedCard  = card;
                 var capturedCount = count;
                 cardViews[i].gameObject.SetActive(true);
-                cardViews[i].Setup(card, count, canSelect, isNew, () =>
+                cardViews[i].Setup(card, count, canSelect, isNew, (worldCenter) =>
                 {
                     if (_animating) return;
                     _animating = true;
-                    OnCardSelected?.Invoke(capturedCard, capturedCount);
+                    OnCardSelected?.Invoke(capturedCard, capturedCount, worldCenter);
                 }, state);
             }
             else
@@ -74,9 +74,10 @@ public class CardSelector : MonoBehaviour
     {
         if (card.cardType == CardType.DayEnd) return true;
 
-        int escalation = state.GetCostEscalation(card.cardName);
+        int escalation  = state.GetCostEscalation(card.cardName);
+        int freeTurnDiscount = state.freeTurnActive ? 1 : 0;
         foreach (var cost in card.costs)
-            if (state.GetResource(cost.resource) < (cost.amount + escalation) * count + state.costPenalty)
+            if (state.GetResource(cost.resource) < cost.amount + escalation + state.costPenalty - freeTurnDiscount)
                 return false;
 
         foreach (var cond in card.conditions)

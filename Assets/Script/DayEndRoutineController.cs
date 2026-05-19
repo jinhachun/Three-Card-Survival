@@ -44,7 +44,7 @@ public class DayEndRoutineController : MonoBehaviour
             if (t.minDay <= state.day) trialCandidates.Add(t);
         if (trialCandidates.Count > 0)
         {
-            int trialCount = state.day <= 3 ? 1 : state.day <= 6 ? 2 : 3;
+            int trialCount = 1 + state.day / 10;
             for (int t = 0; t < trialCount; t++)
                 deckManager.AddCardToDeck(CardUtils.Clone(trialCandidates[UnityEngine.Random.Range(0, trialCandidates.Count)]));
         }
@@ -57,6 +57,10 @@ public class DayEndRoutineController : MonoBehaviour
         state.hp = state.maxHp;
         state.day += 1;
         deckManager.Shuffle();
+
+        // freeTurn: 이번 날 pending → 다음 날 active
+        state.freeTurnActive  = state.freeTurnPending;
+        state.freeTurnPending = false;
 
         onComplete?.Invoke();
     }

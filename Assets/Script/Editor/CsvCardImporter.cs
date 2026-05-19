@@ -157,12 +157,91 @@ public static class CsvCardImporter
         switch (t[0])
         {
             case "Resource":
-                if (t.Length == 3
-                    && Enum.TryParse<ResourceType>(t[1], out var res)
-                    && int.TryParse(t[2], out int resAmt))
+                if (t.Length == 3 && Enum.TryParse<ResourceType>(t[1], out var res))
                 {
-                    var e = ScriptableObject.CreateInstance<ResourceEffectSO>();
-                    e.resource = res; e.amount = resAmt;
+                    var e         = ScriptableObject.CreateInstance<ResourceEffectSO>();
+                    e.resource    = res;
+                    var rangeParts = t[2].Split('~');
+                    if (rangeParts.Length == 2
+                        && int.TryParse(rangeParts[0], out int rMin)
+                        && int.TryParse(rangeParts[1], out int rMax))
+                    { e.isRandom = true; e.randomMin = rMin; e.randomMax = rMax; }
+                    else if (int.TryParse(t[2], out int resAmt))
+                    { e.amount = resAmt; }
+                    else break;
+                    return e;
+                }
+                break;
+
+            case "Raid":
+                if (t.Length == 3
+                    && int.TryParse(t[1], out int raidMin)
+                    && int.TryParse(t[2], out int raidMax))
+                {
+                    var e = ScriptableObject.CreateInstance<RaidEffectSO>();
+                    e.minDrain = raidMin; e.maxDrain = raidMax;
+                    return e;
+                }
+                break;
+
+            case "LastStand":
+                // LastStand:resource:threshold:big:small
+                if (t.Length == 5
+                    && Enum.TryParse<ResourceType>(t[1], out var lsRes)
+                    && int.TryParse(t[2], out int lsThresh)
+                    && int.TryParse(t[3], out int lsBig)
+                    && int.TryParse(t[4], out int lsSmall))
+                {
+                    var e = ScriptableObject.CreateInstance<LastStandEffectSO>();
+                    e.resource = lsRes; e.hpThreshold = lsThresh;
+                    e.bigAmount = lsBig; e.smallAmount = lsSmall;
+                    return e;
+                }
+                break;
+
+            case "RemoveTrial":
+                if (t.Length == 2)
+                {
+                    var e = ScriptableObject.CreateInstance<RemoveTrialEffectSO>();
+                    e.source = t[1] == "CarriedOver"
+                        ? RemoveTrialEffectSO.TrialSource.CarriedOver
+                        : RemoveTrialEffectSO.TrialSource.Deck;
+                    return e;
+                }
+                break;
+
+            case "TriggerCard":
+                if (t.Length == 2)
+                {
+                    var e = ScriptableObject.CreateInstance<TriggerCardEffectSO>();
+                    e.source = t[1] == "UsedCards"
+                        ? TriggerCardEffectSO.CardSource.UsedCards
+                        : TriggerCardEffectSO.CardSource.Deck;
+                    return e;
+                }
+                break;
+
+            case "FreeTurn":
+                return ScriptableObject.CreateInstance<FreeTurnEffectSO>();
+
+            case "AllBuildingProgress":
+                if (t.Length == 2 && int.TryParse(t[1], out int abpAmt))
+                {
+                    var e = ScriptableObject.CreateInstance<AllBuildingProgressEffectSO>();
+                    e.progressAmount   = abpAmt;
+                    e.buildingRegistry = AssetDatabase.LoadAssetAtPath<BuildingRegistry>("Assets/Data/BuildingRegistry.asset");
+                    return e;
+                }
+                break;
+
+            case "Blueprint":
+                if (t.Length == 3
+                    && int.TryParse(t[1], out int bpMin)
+                    && int.TryParse(t[2], out int bpMax))
+                {
+                    var e = ScriptableObject.CreateInstance<BlueprintEffectSO>();
+                    e.progressMin = bpMin; e.progressMax = bpMax;
+                    e.buildingRegistry = AssetDatabase.LoadAssetAtPath<BuildingRegistry>("Assets/Data/BuildingRegistry.asset");
                     return e;
                 }
                 break;
